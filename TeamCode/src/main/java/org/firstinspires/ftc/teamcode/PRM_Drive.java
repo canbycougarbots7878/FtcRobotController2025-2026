@@ -15,51 +15,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 @TeleOp(name = "Player Relative Drive", group = "Movement")
 public class PRM_Drive extends LinearOpMode {
-    DcMotor Front_Right = null;
-    DcMotor Front_Left = null;
-    DcMotor Back_Right = null;
-    DcMotor Back_Left = null;
-
-
     MovementLib.Robot robot = null;
-
-
-
-
-    IMU imu;
     public void runOpMode() {
-        Front_Right = hardwareMap.get(DcMotor.class, "frontright");
-        Front_Left = hardwareMap.get(DcMotor.class, "frontleft");
-        Back_Right = hardwareMap.get(DcMotor.class, "backright");
-        Back_Left = hardwareMap.get(DcMotor.class, "backleft");
-
-
-        robot = new MovementLib.Robot(Front_Right, Front_Left, Back_Right, Back_Left); // Initialize Wheels handler
-        robot.Reverse_Left(); // Make all motors spin forward
-        imu = hardwareMap.get(IMU.class, "imu");
-
+        robot = new MovementLib.Robot(hardwareMap).enableIMU(); // Initialize Wheels handler
+        robot.Reverse_Right(); // Make all motors spin forward
 
         waitForStart();
         while(opModeIsActive()) {
-            // Get local directions
-            double localForward = gamepad1.left_stick_y;
-            double localRight = - gamepad1.left_stick_x;
+            robot.PRM_Move(gamepad1.left_stick_y, -gamepad1.left_stick_x, gamepad1.right_stick_x, 0.75);
 
-
-            // Read IMU data
-            YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
-            double yaw = angles.getYaw() * 0.01745329251; // Get robot yaw converted to radians
-
-
-            // Calculate global directions using 2D rotation matrix
-            double forward = localForward * Math.cos(yaw) - localRight * Math.sin(yaw);
-            double right = localForward * Math.sin(yaw) + localRight * Math.cos(yaw);
-
-
-            robot.Omni_Move(forward, right, gamepad1.right_stick_x, (gamepad1.right_bumper ? 1.0 : 0.5));
-
-
-            if(gamepad1.start) imu.resetYaw();
+            if(gamepad1.start) robot.imu.resetYaw();
         }
     }
 }
