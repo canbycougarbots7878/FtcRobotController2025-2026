@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.robotcore.internal.camera.delegating.DelegatingCaptureSequence;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -32,33 +33,7 @@ public class AprilTagMovementWithControler extends LinearOpMode {
     MovementLib.Robot robot = null;
     IMU imu;
 
-    FieldTransform fieldTransform;
     double imuStartYaw = 0; // Starting yaw offset
-
-    // Field coordinate transform
-    public static class FieldTransform {
-        double offsetX; // inches
-        double offsetY;
-        double offsetH; // degrees
-
-        public FieldTransform(double offsetX, double offsetY, double offsetH) {
-            this.offsetX = offsetX;
-            this.offsetY = offsetY;
-            this.offsetH = offsetH;
-        }
-
-        public SparkFunOTOS.Pose2D toFieldCoords(SparkFunOTOS.Pose2D robotPose) {
-            double rad = Math.toRadians(offsetH);
-            double cos = Math.cos(rad);
-            double sin = Math.sin(rad);
-
-            double fieldX = offsetX + robotPose.x * cos - robotPose.y * sin;
-            double fieldY = offsetY + robotPose.x * sin + robotPose.y * cos;
-            double fieldH = robotPose.h + offsetH;
-
-            return new SparkFunOTOS.Pose2D(fieldX, fieldY, fieldH);
-        }
-    }
 
     @Override
     public void runOpMode() {
@@ -71,74 +46,59 @@ public class AprilTagMovementWithControler extends LinearOpMode {
         Back_Left = hardwareMap.get(DcMotor.class, "backleft");
 
         myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
-        myOtos.setLinearUnit(DistanceUnit.INCH);
+        myOtos.setLinearUnit(DistanceUnit.METER);
         myOtos.setAngularUnit(AngleUnit.DEGREES);
-        myOtos.calibrateImu();
         myOtos.resetTracking();
 
         robot = new MovementLib.Robot(Front_Right, Front_Left, Back_Right, Back_Left);
         robot.Reverse_Right();
-        imu = hardwareMap.get(IMU.class, "imu");
+
+        double BlueAllianceTagH = Math.acos((Math.pow(58.7, 2) - Math.pow(70, 2) - Math.pow(59, 2))/(-2*70*59));
+        double BlueAllianceTagXposin = -72 + (35*(0.39370079))*Math.sin(BlueAllianceTagH);
+        double BlueAllianceTagYposin = -72 + (59-(35)*Math.cos(BlueAllianceTagH))*(0.39370079);
+
+        double RedAllianceTagH = 360 - Math.acos((Math.pow(58.7, 2) - Math.pow(70, 2) - Math.pow(59, 2))/(-2*70*59));
+        double RedAllianceTagXposin = -72 + (35*(0.39370079))*Math.sin(RedAllianceTagH);
+        double RedAllianceTagYposin = 72 - (59-(35)*Math.cos(RedAllianceTagH))*(0.39370079);
 
         // --- Alliance selection ---
         telemetry.addLine("Press A for Red Alliance, B for Blue Alliance");
         telemetry.update();
-        while (!isStopRequested() && !(gamepad1.a || gamepad1.b)) { }
+        while (!isStopRequested() && !(gamepad1.a || gamepad1.b)) {
+        }
 
         boolean isRedAlliance = gamepad1.a;
-        double sixFeetInInches = 6 * 12.0;
-        if (isRedAlliance) {
-            fieldTransform = new FieldTransform(sixFeetInInches, sixFeetInInches, 0);
-        } else {
-            fieldTransform = new FieldTransform(-sixFeetInInches, -sixFeetInInches, 180);
-        }
 
         telemetry.addData("Alliance selected", isRedAlliance ? "Red" : "Blue");
         telemetry.update();
 
-        // Capture starting IMU yaw
-        imuStartYaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        if (isRedAlliance) {
+            String Alliance = "Red";
+        } else {
+            String Alliance = "Blue";
+        }
+
 
         waitForStart();
 
         if (opModeIsActive()) {
+
             while (opModeIsActive()) {
-                // --- 1. Read joystick input ---
-                double localForward = gamepad1.left_stick_y;
-                double localRight = -gamepad1.left_stick_x;
-
-                // --- 2. Get current yaw and apply starting offset ---
-                double currentYaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-                double yaw = currentYaw - imuStartYaw;
-
-                // --- 3. Alliance multipliers ---
-                double xMult = isRedAlliance ? 1.0 : -1.0;
-                double yMult = isRedAlliance ? 1.0 : -1.0;
-
-                // --- 4. Transform joystick vector into field-centric global frame ---
-                double globalX = xMult * (localForward * Math.cos(yaw) - localRight * Math.sin(yaw));
-                double globalY = yMult * (localForward * Math.sin(yaw) + localRight * Math.cos(yaw));
-
-                // --- 5. Drive robot ---
-                robot.Omni_Move(globalX, globalY, gamepad1.right_stick_x,
-                        (gamepad1.right_bumper ? 1.0 : 0.5));
-
-                // --- 6. Reset heading if needed ---
-                if (gamepad1.start) imu.resetYaw();
-
-                // --- 7. Update field-aligned OTOS pose ---
-                SparkFunOTOS.Pose2D localPose = myOtos.getPosition();
-                SparkFunOTOS.Pose2D fieldPose = fieldTransform.toFieldCoords(localPose);
-
-                // --- 8. Update telemetry ---
                 telemetryAprilTag();
 
-                telemetry.addLine("\n--- Robot Field Position ---");
-                telemetry.addData("Field X (in)", fieldPose.x);
-                telemetry.addData("Field Y (in)", fieldPose.y);
-                telemetry.addData("Field Heading (deg)", fieldPose.h);
-                telemetry.addData("Yaw (deg)", Math.toDegrees(yaw));
-                telemetry.update();
+
+
+                SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
+                myOtos.setPosition(currentPosition);
+                SparkFunOTOS.Pose2D pos = myOtos.getPosition();
+                double robotForward = gamepad1.left_stick_y;
+                double robotRight = gamepad1.left_stick_x;
+                double Radians = Math.toRadians(pos.h);
+
+                double Forward = robotForward*Math.cos(Radians) - robotRight*Math.sin(Radians);
+                double Right = -robotRight*Math.cos(Radians) + robotForward*Math.sin(Radians);
+
+                robot.Omni_Move( Forward, Right, -gamepad1.right_stick_x, (gamepad1.right_bumper ? 1.0 : 0.5));
 
                 sleep(20);
             }
@@ -157,43 +117,24 @@ public class AprilTagMovementWithControler extends LinearOpMode {
     private void telemetryAprilTag() {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         telemetry.addData("# AprilTags Detected", currentDetections.size());
-        SparkFunOTOS.Pose2D pos = myOtos.getPosition();
-
-        final double FT = 12.0;
-        class TagFieldPose {
-            double x, y, h;
-            TagFieldPose(double x, double y, double h) { this.x = x; this.y = y; this.h = h; }
-        }
-
-        TagFieldPose tag20 = new TagFieldPose(-4.75040454424 * FT, -2.07921462701 * FT, 53.3092886396);  // Blue tag
-        TagFieldPose tag24 = new TagFieldPose(-4.75040454424 * FT, 2.07921462701 * FT, -53.3092886396);  // Red tag
 
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
-                SparkFunOTOS.Pose2D cameraPose = new SparkFunOTOS.Pose2D(detection.ftcPose.y, -detection.ftcPose.x, detection.ftcPose.yaw);
-                myOtos.setPosition(cameraPose);
-                pos = myOtos.getPosition();
-
-                // Auto-correct robot field pose using tag
-                TagFieldPose knownTag = (detection.id == 20) ? tag20 : (detection.id == 24) ? tag24 : null;
-                if (knownTag != null) {
-                    double correctedX = knownTag.x - pos.x;
-                    double correctedY = knownTag.y - pos.y;
-                    double correctedH = knownTag.h - pos.h;
-                    SparkFunOTOS.Pose2D correctedPose = new SparkFunOTOS.Pose2D(correctedX, correctedY, correctedH);
-                    myOtos.setPosition(correctedPose);
-                    pos = myOtos.getPosition();
-                    telemetry.addLine(String.format("Corrected using Tag ID %d", detection.id));
-                }
 
                 telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
                 telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
                 telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
                 telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
+
+                double TagX = detection.ftcPose.x;
+                double TagY = detection.ftcPose.y;
+                double TagYaw = detection.ftcPose.yaw;
+
             } else {
                 telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
                 telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
             }
+            telemetry.update();
         }
     }
 }
