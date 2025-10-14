@@ -14,15 +14,8 @@ public class Basic_Drive extends LinearOpMode {
     DcMotor Back_Left = null;
     MovementLib.Robot robot = null;
     public void runOpMode() {
-        Front_Right = hardwareMap.get(DcMotor.class, "frontright");
-        Front_Left = hardwareMap.get(DcMotor.class, "frontleft");
-        Back_Right = hardwareMap.get(DcMotor.class, "backright");
-        Back_Left = hardwareMap.get(DcMotor.class, "backleft");
-
-
-        robot = new MovementLib.Robot(Front_Right, Front_Left, Back_Right, Back_Left); // Initialize Wheels handler
-        robot.Reverse_Left(); // Make all motors spin forward
-
+        robot = new MovementLib.Robot(hardwareMap); // Initialize Wheels handler
+        robot.Reverse_Right(); // Make all motors spin forward
 
         waitForStart();
         while(opModeIsActive()) {

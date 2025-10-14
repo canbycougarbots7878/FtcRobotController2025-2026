@@ -30,11 +30,14 @@ public class MovementLib {
         public DcMotor Front_Left;
         public DcMotor Back_Right;
         public DcMotor Back_Left;
+
+        public DcMotor Arm_Motor;
+
         public SparkFunOTOS otos;
 
 
         private Boolean OTOS_ENABLED = false;
-
+        private Boolean ARM_ENABLED = false;
 
         public Robot(HardwareMap hardwareMap) {
             this.Front_Right = hardwareMap.get(DcMotor.class, "frontright");
@@ -42,7 +45,7 @@ public class MovementLib {
             this.Back_Right = hardwareMap.get(DcMotor.class, "backright");
             this.Back_Left = hardwareMap.get(DcMotor.class, "backleft");
         }
-        public Robot(HardwareMap hardwareMap, boolean findOtos) {
+        public Robot(HardwareMap hardwareMap, boolean findOtos, boolean enableArm) {
             this.Front_Right = hardwareMap.get(DcMotor.class, "frontright");
             this.Front_Left = hardwareMap.get(DcMotor.class, "frontleft");
             this.Back_Right = hardwareMap.get(DcMotor.class, "backright");
@@ -55,10 +58,19 @@ public class MovementLib {
                 this.otos.setAngularUnit(AngleUnit.DEGREES);
                 this.otos.calibrateImu();
                 this.otos.resetTracking();
+                this.OTOS_ENABLED = true;
+            }
+
+            if(enableArm) {
+                // Set up arm
+                this.Arm_Motor = hardwareMap.get(DcMotor.class, "arm");
+                this.Arm_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                this.Arm_Motor.setTargetPosition(0);
+                this.Arm_Motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                this.ARM_ENABLED = true;
             }
 
 
-            this.OTOS_ENABLED = findOtos;
         }
         public Robot(DcMotor Front_Right, DcMotor Front_Left, DcMotor Back_Right, DcMotor Back_Left) {
             this.Front_Right = Front_Right;
@@ -77,10 +89,10 @@ public class MovementLib {
 
 
         public void Omni_Move(double Forward, double Right, double RotateCC, double speed) {
-            double fl = Forward + Right + RotateCC;
-            double fr = Forward - Right - RotateCC;
-            double bl = Forward - Right + RotateCC;
-            double br = Forward + Right - RotateCC;
+            double fl = Forward + Right - RotateCC;
+            double fr = Forward - Right + RotateCC;
+            double bl = Forward - Right - RotateCC;
+            double br = Forward + Right + RotateCC;
 
 
             // normalize so no value exceeds 1
@@ -149,6 +161,15 @@ public class MovementLib {
             double dy = 2 * (target.y - pos.y);
             double dh = (target.h - pos.h) / 180.0;
             return Math.sqrt(dx*dx+dy*dy+dh*dh);
+        }
+        public void Set_Arm_Power(double power) {
+            this.Arm_Motor.setPower(power);
+        }
+        public void Set_Arm_Position(int tick) {
+            this.Arm_Motor.setTargetPosition(tick);
+        }
+        public int Get_Arm_Position() {
+            return this.Arm_Motor.getCurrentPosition();
         }
     }
 }
