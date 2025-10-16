@@ -16,7 +16,7 @@ public class OTOS_Reader extends LinearOpMode {
 
     public SparkFunOTOS.Pose2D target = new SparkFunOTOS.Pose2D(0,0,0);
     public void runOpMode() {
-        robot = new MovementLib.Robot(hardwareMap, true, false); // Init Robot with Otos enabled
+        robot = new MovementLib.Robot(hardwareMap).enableOtos(); // Init Robot with Otos enabled
         robot.Reverse_Left(); // Make all motors spin forward
 
 

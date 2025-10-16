@@ -6,10 +6,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.IMU;
 
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 
 @SuppressWarnings("unused")
@@ -26,6 +28,8 @@ public class MovementLib {
         }
     }
     public static class Robot {
+        private HardwareMap hardwareMap;
+
         public DcMotor Front_Right;
         public DcMotor Front_Left;
         public DcMotor Back_Right;
@@ -35,43 +39,61 @@ public class MovementLib {
 
         public SparkFunOTOS otos;
 
+        public IMU imu;
 
         private Boolean OTOS_ENABLED = false;
         private Boolean ARM_ENABLED = false;
+        private Boolean IMU_ENABLED = false;
 
         public Robot(HardwareMap hardwareMap) {
             this.Front_Right = hardwareMap.get(DcMotor.class, "frontright");
             this.Front_Left = hardwareMap.get(DcMotor.class, "frontleft");
             this.Back_Right = hardwareMap.get(DcMotor.class, "backright");
             this.Back_Left = hardwareMap.get(DcMotor.class, "backleft");
+            this.hardwareMap = hardwareMap;
         }
-        public Robot(HardwareMap hardwareMap, boolean findOtos, boolean enableArm) {
-            this.Front_Right = hardwareMap.get(DcMotor.class, "frontright");
-            this.Front_Left = hardwareMap.get(DcMotor.class, "frontleft");
-            this.Back_Right = hardwareMap.get(DcMotor.class, "backright");
-            this.Back_Left = hardwareMap.get(DcMotor.class, "backleft");
-
-
-            if(findOtos) {
-                this.otos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
-                this.otos.setLinearUnit(DistanceUnit.METER);
-                this.otos.setAngularUnit(AngleUnit.DEGREES);
-                this.otos.calibrateImu();
-                this.otos.resetTracking();
-                this.OTOS_ENABLED = true;
-            }
-
-            if(enableArm) {
-                // Set up arm
-                this.Arm_Motor = hardwareMap.get(DcMotor.class, "arm");
-                this.Arm_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                this.Arm_Motor.setTargetPosition(0);
-                this.Arm_Motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                this.ARM_ENABLED = true;
-            }
-
-
+        public Robot enableOtos() {
+            this.otos = this.hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+            this.OTOS_ENABLED = true;
+            return this;
         }
+        public Robot enableArm() {
+            this.Arm_Motor = this.hardwareMap.get(DcMotor.class, "arm");
+            this.ARM_ENABLED = true;
+            return this;
+        }
+        public Robot enableIMU() {
+            this.imu = this.hardwareMap.get(IMU.class, "imu");
+            this.IMU_ENABLED = true;
+            return this;
+        }
+//        public Robot(HardwareMap hardwareMap, boolean findOtos, boolean enableArm) {
+//            this.Front_Right = hardwareMap.get(DcMotor.class, "frontright");
+//            this.Front_Left = hardwareMap.get(DcMotor.class, "frontleft");
+//            this.Back_Right = hardwareMap.get(DcMotor.class, "backright");
+//            this.Back_Left = hardwareMap.get(DcMotor.class, "backleft");
+//
+//
+//            if(findOtos) {
+//                this.otos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+//                this.otos.setLinearUnit(DistanceUnit.METER);
+//                this.otos.setAngularUnit(AngleUnit.DEGREES);
+//                this.otos.calibrateImu();
+//                this.otos.resetTracking();
+//                this.OTOS_ENABLED = true;
+//            }
+//
+//            if(enableArm) {
+//                // Set up arm
+//                this.Arm_Motor = hardwareMap.get(DcMotor.class, "arm");
+//                this.Arm_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                this.Arm_Motor.setTargetPosition(0);
+//                this.Arm_Motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                this.ARM_ENABLED = true;
+//            }
+//
+//
+//        }
         public Robot(DcMotor Front_Right, DcMotor Front_Left, DcMotor Back_Right, DcMotor Back_Left) {
             this.Front_Right = Front_Right;
             this.Front_Left = Front_Left;
@@ -79,7 +101,7 @@ public class MovementLib {
             this.Back_Left = Back_Left;
         }
 
-
+        // Basic wheel functions
         public void Set_Wheels(double Front_Right_Power, double Front_Left_Power, double Back_Right_Power, double Back_Left_Power) {
             this.Front_Right.setPower(Front_Right_Power);
             this.Front_Left.setPower(Front_Left_Power);
@@ -87,38 +109,29 @@ public class MovementLib {
             this.Back_Left.setPower(Back_Left_Power);
         }
 
-
         public void Omni_Move(double Forward, double Right, double RotateCC, double speed) {
             double fl = Forward + Right - RotateCC;
             double fr = Forward - Right + RotateCC;
             double bl = Forward - Right - RotateCC;
             double br = Forward + Right + RotateCC;
 
-
             // normalize so no value exceeds 1
             double max = Math.max(1.0, Math.max(Math.abs(fl),
                     Math.max(Math.abs(fr), Math.max(Math.abs(bl), Math.abs(br)))));
-
 
             fl /= max;
             fr /= max;
             bl /= max;
             br /= max;
 
-
             this.Set_Wheels(fr * speed, fl * speed, br * speed, bl * speed);
         }
         public void Omni_Move(Vector2 vec2, double speed) {
             Omni_Move(vec2.y,vec2.x,0.0,speed);
-
-
         } public void Omni_Move(Vector2 vec2) { Omni_Move(vec2, 1.0); }
-
-
         public void Omni_Move(double Forward, double Right, double RotateCC) {
             Omni_Move(Forward, Right, RotateCC, 1.0); /* If no speed provided, assume full speed (1.0) */
         }
-
 
         public void Reverse_These(boolean frontright, boolean frontleft, boolean backright, boolean backleft) {
             if(frontright) {
@@ -141,12 +154,11 @@ public class MovementLib {
             this.Reverse_These(true,false,true,false);
         }
 
-
         public void Stop_Wheels() {
             this.Set_Wheels(0, 0, 0, 0);
         }
 
-
+        // Otos functions
         public void Omni_Move_To_Target(SparkFunOTOS.Pose2D target) {
             if(!OTOS_ENABLED) return;
             SparkFunOTOS.Pose2D pose = otos.getPosition();
@@ -162,6 +174,8 @@ public class MovementLib {
             double dh = (target.h - pos.h) / 180.0;
             return Math.sqrt(dx*dx+dy*dy+dh*dh);
         }
+
+        // Arm functions
         public void Set_Arm_Power(double power) {
             this.Arm_Motor.setPower(power);
         }
@@ -171,5 +185,20 @@ public class MovementLib {
         public int Get_Arm_Position() {
             return this.Arm_Motor.getCurrentPosition();
         }
+
+        // Imu functions
+        public void PRM_Move(double localForward, double localRight, double RotateCC, double speed) {
+            // Angle processing
+            YawPitchRollAngles angles = this.imu.getRobotYawPitchRollAngles();
+            double yaw = angles.getYaw() * 0.01745329251; // Get robot yaw converted to radians
+
+            // Rotated directions
+            double forward = localForward * Math.cos(yaw) - localRight * Math.sin(yaw);
+            double right = localForward * Math.sin(yaw) + localRight * Math.cos(yaw);
+
+            // Move
+            this.Omni_Move(forward, right, RotateCC, speed);
+        }
+
     }
 }
