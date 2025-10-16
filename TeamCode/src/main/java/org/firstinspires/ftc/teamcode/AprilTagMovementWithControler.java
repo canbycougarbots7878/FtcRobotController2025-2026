@@ -37,6 +37,7 @@ public class AprilTagMovementWithControler extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+
         initAprilTag();
 
         // Hardware initialization
@@ -82,13 +83,13 @@ public class AprilTagMovementWithControler extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
+            SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
 
             while (opModeIsActive()) {
+                double TagRange;
                 telemetryAprilTag();
 
 
-
-                SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
                 myOtos.setPosition(currentPosition);
                 SparkFunOTOS.Pose2D pos = myOtos.getPosition();
                 double robotForward = gamepad1.left_stick_y;
@@ -126,9 +127,7 @@ public class AprilTagMovementWithControler extends LinearOpMode {
                 telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
                 telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
 
-                double TagX = detection.ftcPose.x;
-                double TagY = detection.ftcPose.y;
-                double TagYaw = detection.ftcPose.yaw;
+                double TagRange = detection.ftcPose.range;
 
             } else {
                 telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
