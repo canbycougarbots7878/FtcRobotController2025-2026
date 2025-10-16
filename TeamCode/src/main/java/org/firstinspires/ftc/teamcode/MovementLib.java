@@ -59,6 +59,9 @@ public class MovementLib {
         }
         public Robot enableArm() {
             this.Arm_Motor = this.hardwareMap.get(DcMotor.class, "arm");
+            this.Arm_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            this.Arm_Motor.setTargetPosition(0);
+            this.Arm_Motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             this.ARM_ENABLED = true;
             return this;
         }
