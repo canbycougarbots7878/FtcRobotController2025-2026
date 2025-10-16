@@ -24,6 +24,8 @@ public class quickAuto extends LinearOpMode {
 
         robot.Reverse_Right();
 
+        waitForStart();
+
         if (opModeIsActive()) {
             robot.Omni_Move( 1, 0, 0, 1.0);
 
