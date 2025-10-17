@@ -59,8 +59,8 @@ public class NewRobot extends LinearOpMode {
             robot.Set_Arm_Position(tick);
 
             if(gamepad1.right_bumper) { // Launch
-                lSpinner.setPower(1);
-                rSpinner.setPower(1);
+                lSpinner.setPower(0.8);
+                rSpinner.setPower(0.8);
             }
             else if(gamepad1.left_bumper) { // Intake
                 lSpinner.setPower(-.75);
