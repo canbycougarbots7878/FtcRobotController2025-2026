@@ -5,14 +5,11 @@ import android.annotation.SuppressLint;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.robotcore.internal.camera.delegating.DelegatingCaptureSequence;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -31,9 +28,6 @@ public class AprilTagMovementWithControler extends LinearOpMode {
 
     SparkFunOTOS myOtos;
     MovementLib.Robot robot = null;
-    IMU imu;
-
-    double imuStartYaw = 0; // Starting yaw offset
 
     @Override
     public void runOpMode() {
@@ -57,10 +51,15 @@ public class AprilTagMovementWithControler extends LinearOpMode {
         double BlueAllianceTagH = Math.acos((Math.pow(58.7, 2) - Math.pow(70, 2) - Math.pow(59, 2))/(-2*70*59));
         double BlueAllianceTagXposin = -72 + (35*(0.39370079))*Math.sin(BlueAllianceTagH);
         double BlueAllianceTagYposin = -72 + (59-(35)*Math.cos(BlueAllianceTagH))*(0.39370079);
+        double BlueAllianceTagZposin = 29.50;
 
         double RedAllianceTagH = 360 - Math.acos((Math.pow(58.7, 2) - Math.pow(70, 2) - Math.pow(59, 2))/(-2*70*59));
         double RedAllianceTagXposin = -72 + (35*(0.39370079))*Math.sin(RedAllianceTagH);
         double RedAllianceTagYposin = 72 - (59-(35)*Math.cos(RedAllianceTagH))*(0.39370079);
+
+        double CameraZPos = 9.5;
+
+        double DeltaZ = BlueAllianceTagZposin - CameraZPos;
 
         // --- Alliance selection ---
         telemetry.addLine("Press A for Red Alliance, B for Blue Alliance");
@@ -86,8 +85,59 @@ public class AprilTagMovementWithControler extends LinearOpMode {
             SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
 
             while (opModeIsActive()) {
-                double TagRange;
-                telemetryAprilTag();
+                double TagRange = telemetryAprilTag(1);;
+                double BaringFromCamera = telemetryAprilTag(2);
+                double yaw = telemetryAprilTag(3);
+                double id = telemetryAprilTag(4);
+
+                double cameraPosX;
+                double DeltaX;
+                double cameraPosY;
+                double DeltaY;
+                double XYPlaneRange;
+                double BaringFromXaxis;
+
+
+                if (id==20){
+                    XYPlaneRange = Math.sqrt(Math.pow(TagRange,2)-Math.pow(DeltaZ,2));
+
+                    double CameraAngleNotNormalized = -yaw + 180 + BlueAllianceTagH;
+
+                    double CameraAngleNormalized = CameraAngleNotNormalized%360;
+
+                    double BaringFromXaxisHelper = ((360-(CameraAngleNormalized + BaringFromCamera))%360);
+
+                    BaringFromXaxis = ReferenceAngle(BaringFromXaxisHelper);
+
+                    DeltaY = XYPlaneRange*Math.sin(Math.toRadians(BaringFromXaxis));
+                    DeltaX = XYPlaneRange*Math.cos(Math.toRadians(BaringFromXaxis));
+
+                    cameraPosX = (BlueAllianceTagXposin - DeltaX)/(0.39370079/100);
+                    cameraPosY = (BlueAllianceTagYposin - DeltaY)/(0.39370079/100);
+
+                    currentPosition = new SparkFunOTOS.Pose2D(cameraPosX, cameraPosY, CameraAngleNormalized);
+                } else if (id==24) {
+                    XYPlaneRange = Math.sqrt(Math.pow(TagRange,2)-Math.pow(DeltaZ,2));
+
+                    double CameraAngleNotNormalized = -yaw + 180 + RedAllianceTagH;
+
+                    double CameraAngleNormalized = CameraAngleNotNormalized%360;
+
+                    double BaringFromXaxisHelper = ((360-(CameraAngleNormalized + BaringFromCamera))%360);
+
+                    BaringFromXaxis = ReferenceAngle(BaringFromXaxisHelper);
+
+                    DeltaY = XYPlaneRange*Math.sin(Math.toRadians(BaringFromXaxis));
+                    DeltaX = XYPlaneRange*Math.cos(Math.toRadians(BaringFromXaxis));
+
+                    cameraPosX = (RedAllianceTagXposin - DeltaX)/(0.39370079/100);
+                    cameraPosY = (RedAllianceTagYposin - DeltaY)/(0.39370079/100);
+
+                    currentPosition = new SparkFunOTOS.Pose2D(cameraPosX, cameraPosY, CameraAngleNormalized);
+                }else {
+                    SparkFunOTOS.Pose2D pos = myOtos.getPosition();
+                    currentPosition = new SparkFunOTOS.Pose2D(pos.x, pos.y, pos.h);
+                }
 
 
                 myOtos.setPosition(currentPosition);
@@ -114,8 +164,21 @@ public class AprilTagMovementWithControler extends LinearOpMode {
                 hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTag);
     }
 
+    private double ReferenceAngle(double Angle){
+        if (Angle>=0 && Angle<=90){
+            return Angle;
+        } else if (Angle>90 && Angle<=180) {
+            return 180 - Angle;
+        }else if (Angle>180 && Angle<=270) {
+            return Angle - 180;
+        }else if (Angle>270 && Angle<=360) {
+            return 360 - Angle;
+        }
+        return Angle;
+    }
+
     @SuppressLint("DefaultLocale")
-    private void telemetryAprilTag() {
+    private double telemetryAprilTag(double Get) {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         telemetry.addData("# AprilTags Detected", currentDetections.size());
 
@@ -127,13 +190,23 @@ public class AprilTagMovementWithControler extends LinearOpMode {
                 telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
                 telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
 
-                double TagRange = detection.ftcPose.range;
+                if (Get==1){
+                    return detection.ftcPose.range;
+                } else if (Get==2) {
+                    return detection.ftcPose.bearing;
+                } else if (Get==3) {
+                    return detection.ftcPose.yaw;
+                } else if (Get==4) {
+                    return detection.id;
+                }
 
             } else {
                 telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
                 telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
             }
+
             telemetry.update();
         }
+        return 0;
     }
 }
