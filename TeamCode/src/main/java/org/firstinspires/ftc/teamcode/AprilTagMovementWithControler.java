@@ -53,7 +53,7 @@ public class AprilTagMovementWithControler extends LinearOpMode {
         double BlueAllianceTagYposin = -72 + (59-(35)*Math.cos(BlueAllianceTagH))*(0.39370079);
         double BlueAllianceTagZposin = 29.50;
 
-        double RedAllianceTagH = 360 - Math.acos((Math.pow(58.7, 2) - Math.pow(70, 2) - Math.pow(59, 2))/(-2*70*59));
+        double RedAllianceTagH = 360 - BlueAllianceTagH;
         double RedAllianceTagXposin = -72 + (35*(0.39370079))*Math.sin(RedAllianceTagH);
         double RedAllianceTagYposin = 72 - (59-(35)*Math.cos(RedAllianceTagH))*(0.39370079);
 
@@ -82,24 +82,22 @@ public class AprilTagMovementWithControler extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-            SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
+            SparkFunOTOS.Pose2D currentPosition;
 
             while (opModeIsActive()) {
-                double TagRange = telemetryAprilTag(1);;
-                double BaringFromCamera = telemetryAprilTag(2);
-                double yaw = telemetryAprilTag(3);
-                double id = telemetryAprilTag(4);
+                double TagRange = telemetryAprilTag(1);//get value for the range
+                double BaringFromCamera = telemetryAprilTag(2);//get value for the baring
+                double yaw = telemetryAprilTag(3);//get value for the yaw
+                double id = telemetryAprilTag(4);//get value for the id
 
                 double cameraPosX;
                 double DeltaX;
                 double cameraPosY;
                 double DeltaY;
-                double XYPlaneRange;
                 double BaringFromXaxis;
 
-
+                double XYPlaneRange = Math.sqrt(Math.pow(TagRange,2)-Math.pow(DeltaZ,2));
                 if (id==20){
-                    XYPlaneRange = Math.sqrt(Math.pow(TagRange,2)-Math.pow(DeltaZ,2));
 
                     double CameraAngleNotNormalized = -yaw + 180 + BlueAllianceTagH;
 
@@ -117,7 +115,6 @@ public class AprilTagMovementWithControler extends LinearOpMode {
 
                     currentPosition = new SparkFunOTOS.Pose2D(cameraPosX, cameraPosY, CameraAngleNormalized);
                 } else if (id==24) {
-                    XYPlaneRange = Math.sqrt(Math.pow(TagRange,2)-Math.pow(DeltaZ,2));
 
                     double CameraAngleNotNormalized = -yaw + 180 + RedAllianceTagH;
 
