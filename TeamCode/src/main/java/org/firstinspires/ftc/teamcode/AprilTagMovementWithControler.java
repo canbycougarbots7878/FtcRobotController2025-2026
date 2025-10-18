@@ -29,6 +29,7 @@ public class AprilTagMovementWithControler extends LinearOpMode {
     SparkFunOTOS myOtos;
     MovementLib.Robot robot = null;
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void runOpMode() {
 
@@ -57,7 +58,9 @@ public class AprilTagMovementWithControler extends LinearOpMode {
         double RedAllianceTagXposin = -72 + (35*(0.39370079))*Math.sin(RedAllianceTagH);
         double RedAllianceTagYposin = 72 - (59-(35)*Math.cos(RedAllianceTagH))*(0.39370079);
 
-        double CameraZPos = 9.5;
+        double CameraZPos = 13.75;
+        double cameraXdistanceFromOTOS = 6.5;
+        double cameraYdistanceFromOTOS = 4.0;
 
         double DeltaZ = BlueAllianceTagZposin - CameraZPos;
 
@@ -99,7 +102,7 @@ public class AprilTagMovementWithControler extends LinearOpMode {
                 double XYPlaneRange = Math.sqrt(Math.pow(TagRange,2)-Math.pow(DeltaZ,2));
                 if (id==20){
 
-                    double CameraAngleNotNormalized = -yaw + 180 + BlueAllianceTagH;
+                    double CameraAngleNotNormalized = yaw + 180 + BlueAllianceTagH;
 
                     double CameraAngleNormalized = CameraAngleNotNormalized%360;
 
@@ -113,7 +116,14 @@ public class AprilTagMovementWithControler extends LinearOpMode {
                     cameraPosX = (BlueAllianceTagXposin - DeltaX)/(0.39370079/100);
                     cameraPosY = (BlueAllianceTagYposin - DeltaY)/(0.39370079/100);
 
-                    currentPosition = new SparkFunOTOS.Pose2D(cameraPosX, cameraPosY, CameraAngleNormalized);
+                    double otosXPos = cameraPosX + cameraXdistanceFromOTOS*Math.cos(Math.toRadians(CameraAngleNormalized));
+                    double otosYPos = cameraPosY + cameraYdistanceFromOTOS*Math.sin(Math.toRadians(CameraAngleNormalized));
+
+                    double OTOSNormalized = OTOSNormalize(CameraAngleNormalized);
+
+                    currentPosition = new SparkFunOTOS.Pose2D(otosXPos, otosYPos, OTOSNormalized);
+                    telemetry.addLine(String.format("Expected XYH %6.1f %6.1f %6.1f  (in)", DeltaX, DeltaY, DeltaZ));
+                    telemetry.addLine(String.format("Expected XYH %6.1f %6.1f %6.1f  (m,m,degree)", otosXPos, otosYPos, OTOSNormalized));
                 } else if (id==24) {
 
                     double CameraAngleNotNormalized = -yaw + 180 + RedAllianceTagH;
@@ -130,7 +140,13 @@ public class AprilTagMovementWithControler extends LinearOpMode {
                     cameraPosX = (RedAllianceTagXposin - DeltaX)/(0.39370079/100);
                     cameraPosY = (RedAllianceTagYposin - DeltaY)/(0.39370079/100);
 
-                    currentPosition = new SparkFunOTOS.Pose2D(cameraPosX, cameraPosY, CameraAngleNormalized);
+                    double otosXPos = cameraPosX + cameraXdistanceFromOTOS*Math.cos(Math.toRadians(CameraAngleNormalized));
+                    double otosYPos = cameraPosY + cameraYdistanceFromOTOS*Math.sin(Math.toRadians(CameraAngleNormalized));
+
+                    double OTOSNormalized = OTOSNormalize(CameraAngleNormalized);
+
+                    currentPosition = new SparkFunOTOS.Pose2D(otosXPos, otosYPos, OTOSNormalized);
+                    telemetry.addLine(String.format("Expected XYH %6.1f %6.1f %6.1f  (m,m,degree)", otosXPos, otosYPos, OTOSNormalized));
                 }else {
                     SparkFunOTOS.Pose2D pos = myOtos.getPosition();
                     currentPosition = new SparkFunOTOS.Pose2D(pos.x, pos.y, pos.h);
@@ -146,7 +162,10 @@ public class AprilTagMovementWithControler extends LinearOpMode {
                 double Forward = robotForward*Math.cos(Radians) - robotRight*Math.sin(Radians);
                 double Right = -robotRight*Math.cos(Radians) + robotForward*Math.sin(Radians);
 
-                robot.Omni_Move( Forward, Right, -gamepad1.right_stick_x, (gamepad1.right_bumper ? 1.0 : 0.5));
+                robot.Omni_Move( -Forward, -Right, -gamepad1.right_stick_x, (gamepad1.right_bumper ? 1.0 : 0.5));
+
+                telemetry.addLine(String.format("XYH %6.1f %6.1f %6.1f  (m,m,degree)", pos.x, pos.y, pos.h));
+                telemetry.update();
 
                 sleep(20);
             }
@@ -170,6 +189,13 @@ public class AprilTagMovementWithControler extends LinearOpMode {
             return Angle - 180;
         }else if (Angle>270 && Angle<=360) {
             return 360 - Angle;
+        }
+        return Angle;
+    }
+
+    private double OTOSNormalize(double Angle){
+        if (Angle>180){
+            return Angle - 360;
         }
         return Angle;
     }
@@ -200,9 +226,10 @@ public class AprilTagMovementWithControler extends LinearOpMode {
             } else {
                 telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
                 telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
+
             }
 
-            telemetry.update();
+
         }
         return 0;
     }
