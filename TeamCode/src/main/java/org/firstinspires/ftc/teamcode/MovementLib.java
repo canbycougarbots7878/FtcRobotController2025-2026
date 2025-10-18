@@ -2,16 +2,26 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.android.util.Size;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
+import java.util.List;
 
 
 @SuppressWarnings("unused")
@@ -39,11 +49,17 @@ public class MovementLib {
 
         public SparkFunOTOS otos;
 
+        public VisionPortal visionPortal;
+        public AprilTagProcessor aprilTagProcessor;
+        public List<AprilTagDetection> currentDetections;
+        public ElapsedTime timeSinceLastAprilTagCheck;
+
         public IMU imu;
 
         private Boolean OTOS_ENABLED = false;
         private Boolean ARM_ENABLED = false;
         private Boolean IMU_ENABLED = false;
+        private Boolean APRILTAG_ENABLED = false;
 
         public Robot(HardwareMap hardwareMap) {
             this.Front_Right = hardwareMap.get(DcMotor.class, "frontright");
@@ -68,6 +84,14 @@ public class MovementLib {
         public Robot enableIMU() {
             this.imu = this.hardwareMap.get(IMU.class, "imu");
             this.IMU_ENABLED = true;
+            return this;
+        }
+        public Robot enableAprilTagDetection() {
+            this.aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
+            this.visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTagProcessor);
+            this.currentDetections = aprilTagProcessor.getDetections();
+            this.timeSinceLastAprilTagCheck = new ElapsedTime();
+            this.APRILTAG_ENABLED = true;
             return this;
         }
 //        public Robot(HardwareMap hardwareMap, boolean findOtos, boolean enableArm) {
@@ -112,11 +136,12 @@ public class MovementLib {
             this.Back_Left.setPower(Back_Left_Power);
         }
 
-        public void Omni_Move(double Forward, double Right, double RotateCC, double speed) {
-            double fl = Forward + Right - RotateCC;
-            double fr = Forward - Right + RotateCC;
-            double bl = Forward - Right - RotateCC;
-            double br = Forward + Right + RotateCC;
+        public void Omni_Move(double Forward, double Right, double Rotate, double speed) {
+            // THIS HAS BEEN FINICKY
+            double fl = Forward + Right - Rotate;
+            double fr = Forward - Right + Rotate;
+            double bl = Forward - Right - Rotate;
+            double br = Forward + Right + Rotate;
 
             // normalize so no value exceeds 1
             double max = Math.max(1.0, Math.max(Math.abs(fl),
@@ -134,6 +159,15 @@ public class MovementLib {
         } public void Omni_Move(Vector2 vec2) { Omni_Move(vec2, 1.0); }
         public void Omni_Move(double Forward, double Right, double RotateCC) {
             Omni_Move(Forward, Right, RotateCC, 1.0); /* If no speed provided, assume full speed (1.0) */
+        }
+        public void Omni_Move_Controller(Gamepad gamepad, double speed) {
+            double forward = - gamepad.left_stick_y;
+            double strafe = gamepad.left_stick_x;
+            double turn = - gamepad.right_stick_x;
+            Omni_Move(forward,strafe,turn,speed);
+        }
+        public void Omni_Move_Controller(Gamepad gamepad) {
+            Omni_Move_Controller(gamepad, 1);
         }
 
         public void Reverse_These(boolean frontright, boolean frontleft, boolean backright, boolean backleft) {
@@ -202,6 +236,40 @@ public class MovementLib {
             // Move
             this.Omni_Move(forward, right, RotateCC, speed);
         }
+        public void PRM_Move_Controller(Gamepad gamepad, double speed) {
+            double forward = - gamepad.left_stick_y;
+            double strafe = gamepad.left_stick_x;
+            double turn = - gamepad.right_stick_x;
+            PRM_Move(forward,strafe,turn,speed);
+        }
 
+        // Apriltag functions
+        public List<AprilTagDetection> getAprilTagDetections() {
+            return aprilTagProcessor.getDetections();
+        }
+        public void UpdateAprilTagDetections() {
+            this.currentDetections = getAprilTagDetections(); // Update tags in memory
+            this.timeSinceLastAprilTagCheck.reset(); // Reset timer
+        }
+        public void TelemetryAprilTags(Telemetry telemetry) {
+            for (AprilTagDetection detection : currentDetections) {
+                if (detection.metadata != null) {
+                    telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
+                    telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
+                    telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
+                    telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
+                } else {
+                    telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
+                }
+                telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
+            }
+        }
+        public void LookAtAprilTag() {
+            if(!currentDetections.isEmpty()) {
+                double target = currentDetections.get(0).center.x;
+                double turn = - (320 - target) / 320;
+                Omni_Move(0,0,turn);
+            }
+        }
     }
 }

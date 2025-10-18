@@ -22,7 +22,7 @@ public class quickAuto extends LinearOpMode {
 
         robot = new MovementLib.Robot(Front_Right, Front_Left, Back_Right, Back_Left);
 
-        robot.Reverse_Right();
+        robot.Reverse_Left();
 
         waitForStart();
 

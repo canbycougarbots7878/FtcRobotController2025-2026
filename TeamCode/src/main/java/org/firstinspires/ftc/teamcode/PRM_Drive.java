@@ -18,12 +18,12 @@ public class PRM_Drive extends LinearOpMode {
     MovementLib.Robot robot = null;
     public void runOpMode() {
         robot = new MovementLib.Robot(hardwareMap).enableIMU(); // Initialize Wheels handler
-        robot.Reverse_Right(); // Make all motors spin forward
+        robot.Reverse_Left(); // Make all motors spin forward
 
         waitForStart();
         while(opModeIsActive()) {
-            robot.PRM_Move(gamepad1.left_stick_y, -gamepad1.left_stick_x, gamepad1.right_stick_x, 0.75);
-
+            double speed = (gamepad1.right_bumper ? 1.0 : 0.5);
+            robot.PRM_Move_Controller(gamepad1, speed);
             if(gamepad1.start) robot.imu.resetYaw();
         }
     }

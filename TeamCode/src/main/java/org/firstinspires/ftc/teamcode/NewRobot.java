@@ -18,8 +18,8 @@ public class NewRobot extends LinearOpMode {
 
     int tick = 0;
     public void runOpMode() {
-        robot = new MovementLib.Robot(hardwareMap).enableArm(); // Initialize Robot handler without Otos and with arm enabled
-        robot.Reverse_Right(); // Make all motors spin forward
+        robot = new MovementLib.Robot(hardwareMap).enableArm().enableAprilTagDetection(); // Initialize Robot handler without Otos and with arm enabled
+        robot.Reverse_Left(); // Make all motors spin forward
 
         servo = hardwareMap.get(Servo.class, "servo");
 
@@ -30,10 +30,8 @@ public class NewRobot extends LinearOpMode {
         waitForStart();
         robot.Set_Arm_Power(1);
         while(opModeIsActive()) {
-            double forward = gamepad1.left_stick_y;
-            double strafe = - gamepad1.left_stick_x;
             double speed = (gamepad1.right_bumper ? 1.0 : 0.5);
-            robot.Omni_Move(forward, strafe, gamepad1.right_stick_x, speed);
+            robot.Omni_Move_Controller(gamepad1,speed);
             if(gamepad1.a) {
                 servo.setPosition(0.25);
             }

@@ -15,14 +15,13 @@ public class Basic_Drive extends LinearOpMode {
     MovementLib.Robot robot = null;
     public void runOpMode() {
         robot = new MovementLib.Robot(hardwareMap); // Initialize Wheels handler
-        robot.Reverse_Right(); // Make all motors spin forward
+        robot.Reverse_Left(); // Make all motors spin forward
 
         waitForStart();
         while(opModeIsActive()) {
-            double forward = gamepad1.left_stick_y;
-            double strafe = - gamepad1.left_stick_x;
             double speed = (gamepad1.right_bumper ? 1.0 : 0.5);
-            robot.Omni_Move(forward, strafe, gamepad1.right_stick_x, speed);
+            robot.Omni_Move_Controller(gamepad1, speed);
+            telemetry.update();
         }
     }
 }

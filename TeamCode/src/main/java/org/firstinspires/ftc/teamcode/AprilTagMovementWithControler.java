@@ -46,7 +46,7 @@ public class AprilTagMovementWithControler extends LinearOpMode {
         myOtos.resetTracking();
 
         robot = new MovementLib.Robot(Front_Right, Front_Left, Back_Right, Back_Left);
-        robot.Reverse_Right();
+        robot.Reverse_Left();
 
         double BlueAllianceTagH = Math.acos((Math.pow(58.7, 2) - Math.pow(70, 2) - Math.pow(59, 2))/(-2*70*59));
         double BlueAllianceTagXposin = -72 + (35*(0.39370079))*Math.sin(BlueAllianceTagH);
