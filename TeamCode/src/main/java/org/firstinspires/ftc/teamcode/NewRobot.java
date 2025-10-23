@@ -3,15 +3,15 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
 @TeleOp(name = "New Robot Test", group = "Official")
 public class NewRobot extends LinearOpMode {
-    DcMotor lSpinner = null;
-    DcMotor rSpinner = null;
+    DcMotorEx lSpinner = null;
+    DcMotorEx rSpinner = null;
     MovementLib.Robot robot = null;
 
     Servo servo = null;
@@ -23,9 +23,13 @@ public class NewRobot extends LinearOpMode {
 
         servo = hardwareMap.get(Servo.class, "servo");
 
-        lSpinner = hardwareMap.get(DcMotor.class, "leftspinner");
-        rSpinner = hardwareMap.get(DcMotor.class, "rightspinner");
+        lSpinner = hardwareMap.get(DcMotorEx.class, "leftspinner");
+        rSpinner = hardwareMap.get(DcMotorEx.class, "rightspinner");
         rSpinner.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        //lSpinner.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        //rSpinner.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+
 
         waitForStart();
         robot.Set_Arm_Power(1);
@@ -45,9 +49,9 @@ public class NewRobot extends LinearOpMode {
                 telemetry.addLine("Arm power save mode");
                 robot.Set_Arm_Power(0); // Power save
                 if(tick < 0) {
-                    robot.Arm_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.Arm_Motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
                     robot.Arm_Motor.setTargetPosition(0);
-                    robot.Arm_Motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.Arm_Motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                 }
             }
             else {
@@ -57,8 +61,8 @@ public class NewRobot extends LinearOpMode {
             robot.Set_Arm_Position(tick);
 
             if(gamepad1.right_bumper) { // Launch
-                lSpinner.setPower(0.8);
-                rSpinner.setPower(0.8);
+                lSpinner.setVelocity(0.8);
+                rSpinner.setVelocity(0.8);
             }
             else if(gamepad1.left_bumper) { // Intake
                 lSpinner.setPower(-.75);
