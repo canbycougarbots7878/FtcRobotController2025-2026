@@ -27,7 +27,7 @@ public class quickAuto extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-            robot.Omni_Move( 1, 0, 0, 1.0);
+            robot.Omni_Move( 0.5, 0, 0, 1.0);
 
             sleep(1500);
 
