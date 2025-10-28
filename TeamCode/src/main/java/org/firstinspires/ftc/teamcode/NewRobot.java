@@ -26,21 +26,20 @@ public class NewRobot extends LinearOpMode {
         lSpinner = hardwareMap.get(DcMotorEx.class, "leftspinner");
         rSpinner = hardwareMap.get(DcMotorEx.class, "rightspinner");
         rSpinner.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        double spinnerspeed = 1600;
         //lSpinner.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         //rSpinner.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-
+        double speed = 0.5;
 
         waitForStart();
         robot.Set_Arm_Power(1);
         while(opModeIsActive()) {
-            double speed = (gamepad1.right_bumper ? 1.0 : 0.5);
             robot.Omni_Move_Controller(gamepad1,speed);
             if(gamepad1.a) {
-                servo.setPosition(0.25);
+                servo.setPosition(0);
             }
             else {
-                servo.setPosition(0);
+                servo.setPosition(0.25);
             }
 
             double arm_movement = gamepad1.right_trigger - gamepad1.left_trigger; // ranges from 0 to 1
@@ -61,18 +60,27 @@ public class NewRobot extends LinearOpMode {
             robot.Set_Arm_Position(tick);
 
             if(gamepad1.right_bumper) { // Launch
-                lSpinner.setVelocity(0.8);
-                rSpinner.setVelocity(0.8);
+                speed = 0.4;
+                if(gamepad1.y) {
+                    telemetry.addLine("Spinner Overdrive");
+                    lSpinner.setVelocity(2000);
+                    rSpinner.setVelocity(2000);
+                }
+                else {
+                    lSpinner.setVelocity(spinnerspeed);
+                    rSpinner.setVelocity(spinnerspeed);
+                }
             }
             else if(gamepad1.left_bumper) { // Intake
+                speed = 0.5;
                 lSpinner.setPower(-.75);
                 rSpinner.setPower(-.75);
             }
             else {
+                speed = 0.5;
                 lSpinner.setPower(0);
                 rSpinner.setPower(0);
             }
-
             telemetry.addData("Target Position", robot.Arm_Motor.getTargetPosition());
             telemetry.addData("Actual Position", robot.Get_Arm_Position());
             telemetry.update();
