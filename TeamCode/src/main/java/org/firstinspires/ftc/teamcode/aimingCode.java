@@ -35,6 +35,8 @@ public class aimingCode extends LinearOpMode {
         Back_Right = hardwareMap.get(DcMotor.class, "backright");
         Back_Left = hardwareMap.get(DcMotor.class, "backleft");
 
+        robot = new MovementLib.Robot(hardwareMap);
+
         waitForStart();
 
         if (opModeIsActive()) {
