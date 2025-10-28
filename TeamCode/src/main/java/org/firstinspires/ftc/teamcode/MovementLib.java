@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -23,8 +22,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-
 @SuppressWarnings("unused")
+
 public class MovementLib {
     public static class Vector2 {
         double x;
@@ -70,6 +69,8 @@ public class MovementLib {
         }
         public Robot enableOtos() {
             this.otos = this.hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+            otos.calibrateImu();
+            otos.resetTracking();
             this.OTOS_ENABLED = true;
             return this;
         }
@@ -170,6 +171,13 @@ public class MovementLib {
             Omni_Move_Controller(gamepad, 1);
         }
 
+        public void Omni_Move_Transformed(double localForward, double localRight, double RotateCC, double angle, double speed) {
+            // Rotated version of Omni_Move
+            double forward = localForward * Math.cos(angle) - localRight * Math.sin(angle);
+            double right = localForward * Math.sin(angle) + localRight * Math.cos(angle);
+            this.Omni_Move(forward,right,RotateCC,speed);
+        }
+
         public void Reverse_These(boolean frontright, boolean frontleft, boolean backright, boolean backleft) {
             if(frontright) {
                 this.Front_Right.setDirection(this.Front_Right.getDirection().inverted());
@@ -196,16 +204,23 @@ public class MovementLib {
         }
 
         // Otos functions
+        public SparkFunOTOS.Pose2D Get_Position() {
+            SparkFunOTOS.Pose2D pos = otos.getPosition();
+            return pos;
+        }
+        public void Reset_Otos() {
+            otos.resetTracking();
+        }
         public void Omni_Move_To_Target(SparkFunOTOS.Pose2D target) {
             if(!OTOS_ENABLED) return;
-            SparkFunOTOS.Pose2D pose = otos.getPosition();
-            double dx = 2 * (target.x - pose.x);
-            double dy = 2 * (target.y - pose.y);
-            double dh = (target.h - pose.h) / 180.0;
-            Omni_Move(dx, dy, dh);
+            SparkFunOTOS.Pose2D pos = Get_Position();
+            double dx = 2 * (target.x - pos.x) / 10.0;
+            double dy = -2 * (target.y - pos.y) / 10.0;
+            double dh = (target.h - pos.h) / 18.0;
+            this.Omni_Move_Transformed(dx, dy, dh, pos.h * 0.01745329251, 0.5);
         }
         public double Distance_To(SparkFunOTOS.Pose2D target) {
-            SparkFunOTOS.Pose2D pos = otos.getPosition();
+            SparkFunOTOS.Pose2D pos = Get_Position();
             double dx = 2 * (target.x - pos.x);
             double dy = 2 * (target.y - pos.y);
             double dh = (target.h - pos.h) / 180.0;
@@ -229,12 +244,7 @@ public class MovementLib {
             YawPitchRollAngles angles = this.imu.getRobotYawPitchRollAngles();
             double yaw = angles.getYaw() * 0.01745329251; // Get robot yaw converted to radians
 
-            // Rotated directions
-            double forward = localForward * Math.cos(yaw) - localRight * Math.sin(yaw);
-            double right = localForward * Math.sin(yaw) + localRight * Math.cos(yaw);
-
-            // Move
-            this.Omni_Move(forward, right, RotateCC, speed);
+            this.Omni_Move_Transformed(localForward,localRight,RotateCC,yaw,speed);
         }
         public void PRM_Move_Controller(Gamepad gamepad, double speed) {
             double forward = - gamepad.left_stick_y;
