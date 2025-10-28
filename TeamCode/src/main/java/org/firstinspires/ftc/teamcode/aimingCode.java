@@ -46,7 +46,7 @@ public class aimingCode extends LinearOpMode {
                 if (detection != null && detection.metadata != null) {
                     double barring = detection.ftcPose.bearing;
                     if ((Math.abs(barring) > 1) && gamepad1.start){
-                        robot.Omni_Move(-gamepad1.left_stick_y, -gamepad1.left_stick_x, Math.copySign(-1, barring), (gamepad1.right_bumper ? 1.0 : 0.5));
+                        robot.Omni_Move(-gamepad1.left_stick_y, -gamepad1.left_stick_x, (-barring)/18, (gamepad1.right_bumper ? 1.0 : 0.5));
                     }
                 }
 
