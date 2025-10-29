@@ -43,7 +43,7 @@ public class OTOS_Reader extends LinearOpMode {
             telemetry.addData("Heading angle", pos.h);
 
 
-            robot.Omni_Move_To_Target(target);
+            robot.Omni_Move_To_Target(target, 0.5);
 
 
             // Update the telemetry on the driver station
