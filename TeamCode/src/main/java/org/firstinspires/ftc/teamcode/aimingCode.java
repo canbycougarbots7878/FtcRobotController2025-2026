@@ -37,18 +37,20 @@ public class aimingCode extends LinearOpMode {
 
         robot = new MovementLib.Robot(hardwareMap);
 
+        robot.Reverse_Left();
+
         waitForStart();
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 AprilTagDetection detection = getFirstDetection();
 
-                robot.Omni_Move(-gamepad1.left_stick_y, -gamepad1.left_stick_x, gamepad1.right_stick_x, (gamepad1.right_bumper ? 1.0 : 0.5));
+                robot.Omni_Move(-gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x, (gamepad1.right_bumper ? 1.0 : 0.5));
 
                 if (detection != null && detection.metadata != null) {
                     double barring = detection.ftcPose.bearing;
                     if ((Math.abs(barring) > 1) && gamepad1.start){
-                        robot.Omni_Move(-gamepad1.left_stick_y, -gamepad1.left_stick_x, (-barring)/18, (gamepad1.right_bumper ? 1.0 : 0.5));
+                        robot.Omni_Move(-gamepad1.left_stick_y, gamepad1.left_stick_x, (barring)/18, (gamepad1.right_bumper ? 1.0 : 0.5));
                     }
                 }
 
