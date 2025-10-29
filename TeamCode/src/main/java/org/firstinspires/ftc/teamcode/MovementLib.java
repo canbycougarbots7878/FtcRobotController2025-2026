@@ -211,13 +211,13 @@ public class MovementLib {
         public void Reset_Otos() {
             otos.resetTracking();
         }
-        public void Omni_Move_To_Target(SparkFunOTOS.Pose2D target) {
+        public void Omni_Move_To_Target(SparkFunOTOS.Pose2D target,double speed) {
             if(!OTOS_ENABLED) return;
             SparkFunOTOS.Pose2D pos = Get_Position();
             double dx = 2 * (target.x - pos.x) / 10.0;
             double dy = -2 * (target.y - pos.y) / 10.0;
             double dh = (target.h - pos.h) / 18.0;
-            this.Omni_Move_Transformed(dx, dy, dh, pos.h * 0.01745329251, 0.5);
+            this.Omni_Move_Transformed(dx, dy, dh, pos.h * 0.01745329251, speed);
         }
         public double Distance_To(SparkFunOTOS.Pose2D target) {
             SparkFunOTOS.Pose2D pos = Get_Position();
