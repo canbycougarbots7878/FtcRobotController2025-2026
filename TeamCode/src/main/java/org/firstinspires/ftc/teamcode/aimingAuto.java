@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -12,8 +13,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-@TeleOp(name = "Aiming", group = "Sensor")
-public class aimingCode extends LinearOpMode {
+@Autonomous(name="aiming Auto", group="Robot")
+public class aimingAuto extends LinearOpMode {
 
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
@@ -26,7 +27,7 @@ public class aimingCode extends LinearOpMode {
     SparkFunOTOS myOtos;
     MovementLib.Robot robot = null;
 
-    public void runOpMode(){
+    public void runOpMode() {
         initAprilTag();
 
         // Hardware initialization
@@ -42,29 +43,34 @@ public class aimingCode extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
+
+
+            robot.Omni_Move( 0.5, 0, 0, 1.0);
+
+            sleep(1500);
+
+            robot.Omni_Move( 0, 0, 0, 0.0);
+
             while (opModeIsActive()) {
                 AprilTagDetection detection = getFirstDetection();
-
-                if (!gamepad1.a || !gamepad1.b) {
-                    robot.Omni_Move(-gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x, (gamepad1.right_bumper ? 1.0 : 0.5));
-                }
                 if (detection != null && detection.metadata != null) {
                     double barring = detection.ftcPose.bearing;
+                    double yaw = detection.ftcPose.yaw;
                     double Ydistance = detection.ftcPose.y;
+                    double distanceFromYTarget = Ydistance-70;
 
-                    if ((Math.abs(barring) > 0.5) && gamepad1.a){
-                        robot.Omni_Move(-gamepad1.left_stick_y, gamepad1.left_stick_x, (barring)/18, (gamepad1.right_bumper ? 1.0 : 0.5));
+                    if ((Math.abs(barring) > 0.5) || (Math.abs(yaw) > 5) || (Math.abs(distanceFromYTarget) > 0.5)) {
+                        robot.Omni_Move((distanceFromYTarget)/18, (yaw)/18, (barring)/18, 0.5);
                     }
-                    if (((Math.abs(Ydistance-72) > 0.5) || (Math.abs(barring) > 0.5)) && gamepad1.b){
-                        robot.Omni_Move((Ydistance-72)/15, gamepad1.left_stick_x, (barring)/18, (gamepad1.right_bumper ? 1.0 : 0.5));
-                    }
-                } else {
-                    if (gamepad1.y){
-                        robot.Omni_Move(0, 0, 0.25, (gamepad1.right_bumper ? 1.0 : 0.5));
-                    }
+
+                    telemetry.addData("Barring", barring);
+                    telemetry.addData("yaw", yaw);
+
+                    telemetry.update();
                 }
-
+                robot.Omni_Move(0, 0, 0, 0);
             }
+
         }
     }
 
