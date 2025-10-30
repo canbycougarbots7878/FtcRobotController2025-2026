@@ -23,10 +23,9 @@ public class DriveToPosition extends LinearOpMode {
             if(robot.timeSinceLastAprilTagCheck.time() > 0.1) {
                 robot.UpdateAprilTagDetections();
             }
-
-            if(gamepad1.right_trigger > 0.01) {
+            if(gamepad1.a) {
                 SparkFunOTOS.Pose2D pose = new SparkFunOTOS.Pose2D(0,0,0);
-                robot.Omni_Move_To_Target(pose,gamepad1.right_trigger);
+                robot.Omni_Move_To_Target(pose,0.5);
             }
             else {
                 double speed = (gamepad1.right_bumper ? 1.0 : (gamepad1.left_bumper ? 0.25 : 0.5));
@@ -36,10 +35,17 @@ public class DriveToPosition extends LinearOpMode {
             if(gamepad1.start) {
                 robot.Reset_Otos();
             }
-            SparkFunOTOS.Pose2D robot_position = robot.Get_Position();
-            telemetry.addData("x",robot_position.x);
-            telemetry.addData("y",robot_position.y);
-            telemetry.addData("heading",robot_position.h);
+            if(robot.timeSinceLastAprilTagCheck.milliseconds() < 100) {
+                robot.UpdateAprilTagDetections();
+            }
+            //robot.TelemetryAprilTags(telemetry);
+            SparkFunOTOS.Pose2D pos = robot.GetPositionBasedOnAprilTag();
+            MovementLib.Pose2DSetHeading(pos, 0);
+            if(pos.x + pos.y + pos.h != 0) {
+                telemetry.addData("X", pos.x);
+                telemetry.addData("Y", pos.y);
+                telemetry.addData("H", pos.h);
+            }
             telemetry.update();
         }
     }

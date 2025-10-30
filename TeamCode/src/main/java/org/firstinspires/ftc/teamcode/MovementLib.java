@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -11,10 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.android.util.Size;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -23,7 +21,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 
 @SuppressWarnings("unused")
-
 public class MovementLib {
     public static class Vector2 {
         double x;
@@ -35,6 +32,19 @@ public class MovementLib {
         public double magnitude() {
             return Math.sqrt(x*x+y*y);
         }
+    }
+    public static SparkFunOTOS.Pose2D Pose2DSetHeading(SparkFunOTOS.Pose2D pos, double targetAngle) {
+        // Using rotation matrix to rotate Pose2D to target angle
+
+        double currentAngle = pos.h * 0.01745329251; // Convert degrees to radians for sin and cos functions
+
+        // Apply rotation matrix
+        double x = pos.x * Math.cos(targetAngle - currentAngle) - pos.y * Math.sin(targetAngle - currentAngle);
+        double y = pos.x * Math.sin(targetAngle - currentAngle) + pos.y * Math.cos(targetAngle - currentAngle);
+
+        SparkFunOTOS.Pose2D newPos = new SparkFunOTOS.Pose2D(x,y,targetAngle);
+
+        return newPos;
     }
     public static class Robot {
         private HardwareMap hardwareMap;
@@ -219,6 +229,9 @@ public class MovementLib {
             double dh = (target.h - pos.h) / 18.0;
             this.Omni_Move_Transformed(dx, dy, dh, pos.h * 0.01745329251, speed);
         }
+        public void Return_Home() {
+            Omni_Move_To_Target(new SparkFunOTOS.Pose2D(0,0,0), 0.5);
+        }
         public double Distance_To(SparkFunOTOS.Pose2D target) {
             SparkFunOTOS.Pose2D pos = Get_Position();
             double dx = 2 * (target.x - pos.x);
@@ -236,6 +249,11 @@ public class MovementLib {
         }
         public int Get_Arm_Position() {
             return this.Arm_Motor.getCurrentPosition();
+        }
+        public void Reset_Arm_Reading() {
+            Arm_Motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            Arm_Motor.setTargetPosition(0);
+            Arm_Motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         }
 
         // Imu functions
@@ -280,6 +298,14 @@ public class MovementLib {
                 double turn = - (320 - target) / 320;
                 Omni_Move(0,0,turn);
             }
+        }
+        public SparkFunOTOS.Pose2D GetPositionBasedOnAprilTag() {
+            for (AprilTagDetection detection : currentDetections) {
+                if (detection.id == 20) {
+                    return new SparkFunOTOS.Pose2D(detection.ftcPose.x,detection.ftcPose.y,detection.ftcPose.yaw);
+                }
+            }
+            return new SparkFunOTOS.Pose2D();
         }
     }
 }

@@ -16,9 +16,8 @@ public class NewRobot extends LinearOpMode {
 
     Servo servo = null;
 
-    int tick = 0;
     public void runOpMode() {
-        robot = new MovementLib.Robot(hardwareMap).enableArm().enableAprilTagDetection(); // Initialize Robot handler without Otos and with arm enabled
+        robot = new MovementLib.Robot(hardwareMap).enableArm().enableAprilTagDetection().enableOtos(); // Initialize Robot handler without Otos and with arm enabled
         robot.Reverse_Left(); // Make all motors spin forward
 
         servo = hardwareMap.get(Servo.class, "servo");
@@ -26,38 +25,48 @@ public class NewRobot extends LinearOpMode {
         lSpinner = hardwareMap.get(DcMotorEx.class, "leftspinner");
         rSpinner = hardwareMap.get(DcMotorEx.class, "rightspinner");
         rSpinner.setDirection(DcMotorSimple.Direction.REVERSE);
-        double spinnerspeed = 1600;
+        double spinnerspeed = 1400;
         //lSpinner.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         //rSpinner.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         double speed = 0.5;
+
+        boolean armUp = false;
 
         waitForStart();
         robot.Set_Arm_Power(1);
         while(opModeIsActive()) {
             robot.Omni_Move_Controller(gamepad1,speed);
             if(gamepad1.a) {
-                servo.setPosition(0);
+                servo.setPosition(0.85);
             }
             else {
-                servo.setPosition(0.25);
+                servo.setPosition(1);
             }
 
-            double arm_movement = gamepad1.right_trigger - gamepad1.left_trigger; // ranges from 0 to 1
-            tick += (int)(arm_movement * 4);
-            if(tick < 30 && (gamepad1.right_trigger + gamepad1.left_trigger) == 0) {
-                telemetry.addLine("Arm power save mode");
-                robot.Set_Arm_Power(0); // Power save
-                if(tick < 0) {
-                    robot.Arm_Motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            // Arm Control
+            if(gamepad1.xWasPressed()) {
+                armUp = !armUp;
+                if(armUp) {
+                    robot.Arm_Motor.setTargetPosition(640);
+                }
+                else {
                     robot.Arm_Motor.setTargetPosition(0);
-                    robot.Arm_Motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                }
+            }
+            int armPos = robot.Arm_Motor.getCurrentPosition();
+            if(!gamepad1.x && armPos < 30) {
+                robot.Set_Arm_Power(0);
+                if(armPos < 0) {
+                    robot.Reset_Arm_Reading();
                 }
             }
             else {
                 robot.Set_Arm_Power(1);
             }
 
-            robot.Set_Arm_Position(tick);
+            // Homing code
+            if(gamepad1.start) robot.Reset_Otos();
+            if(gamepad1.y) robot.Return_Home();
 
             if(gamepad1.right_bumper) { // Launch
                 speed = 0.4;
