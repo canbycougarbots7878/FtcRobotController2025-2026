@@ -59,12 +59,13 @@ public class aimingAuto extends LinearOpMode {
                     double Ydistance = detection.ftcPose.y;
                     double distanceFromYTarget = Ydistance-70;
 
-                    if ((Math.abs(barring) > 0.5) || (Math.abs(yaw) > 5) || (Math.abs(distanceFromYTarget) > 0.5)) {
-                        robot.Omni_Move((distanceFromYTarget)/18, (yaw)/18, (barring)/18, 0.5);
+                    if ((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(distanceFromYTarget) > 0.5)) {
+                        robot.Omni_Move((distanceFromYTarget), (yaw)/3, (barring)/10, 1);
                     }
 
                     telemetry.addData("Barring", barring);
                     telemetry.addData("yaw", yaw);
+                    telemetry.addData("distance From apriltag", Ydistance);
 
                     telemetry.update();
                 }
