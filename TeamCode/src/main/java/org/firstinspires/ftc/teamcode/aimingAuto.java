@@ -51,23 +51,42 @@ public class aimingAuto extends LinearOpMode {
 
             robot.Omni_Move( 0, 0, 0, 0.0);
 
+            boolean targetPoseAchieved = false;
+            double RobotTurn = 0.1;
+
             while (opModeIsActive()) {
                 AprilTagDetection detection = getFirstDetection();
                 if (detection != null && detection.metadata != null) {
-                    double barring = detection.ftcPose.bearing;
-                    double yaw = detection.ftcPose.yaw;
-                    double Ydistance = detection.ftcPose.y;
-                    double distanceFromYTarget = Ydistance-70;
+                    if (detection.metadata.id == 20){
+                        double barring = detection.ftcPose.bearing;
+                        double yaw = detection.ftcPose.yaw;
+                        double Ydistance = detection.ftcPose.y;
+                        double TargetYDis = 70;
+                        double YDisDif = TargetYDis - Ydistance;
+                        RobotTurn = 0.1;
 
-                    if ((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(distanceFromYTarget) > 0.5)) {
-                        robot.Omni_Move((distanceFromYTarget), (yaw)/3, (barring)/10, 1);
+                        if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(YDisDif) > 1)) && !targetPoseAchieved) {
+                            robot.Omni_Move((YDisDif)/18, (yaw)/18, (barring)/18, 1);
+                        } else if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5)) && targetPoseAchieved) {
+                            targetPoseAchieved = false;
+                        } else if (!targetPoseAchieved) {
+                            targetPoseAchieved = true;
+                            robot.Omni_Move(0, 0, 0, 0);
+                        }else {
+                            telemetry.addLine(":)");
+                        }
+
+                        telemetry.addData("Barring", barring);
+                        telemetry.addData("yaw", yaw);
+                        telemetry.addData("distance From apriltag", Ydistance);
+
+                        telemetry.update();
                     }
 
-                    telemetry.addData("Barring", barring);
-                    telemetry.addData("yaw", yaw);
-                    telemetry.addData("distance From apriltag", Ydistance);
-
-                    telemetry.update();
+                }else {
+                    robot.Omni_Move(0, 0, RobotTurn, 1);
+                    sleep(150);
+                    RobotTurn += ((Math.abs(RobotTurn)+0.1)*(-Math.copySign(1, RobotTurn)));
                 }
                 robot.Omni_Move(0, 0, 0, 0);
             }
