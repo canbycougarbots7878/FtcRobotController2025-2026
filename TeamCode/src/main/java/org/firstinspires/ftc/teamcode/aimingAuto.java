@@ -4,7 +4,9 @@ import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -12,33 +14,42 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
+import java.util.Locale;
 
 @Autonomous(name="aiming Auto", group="Robot")
 public class aimingAuto extends LinearOpMode {
+    private final double SPINNER_VELOCITY = 1300;
+
+    public DcMotorEx Arm = null;
+    private DcMotorEx leftSpinner, rightSpinner;
+    private Servo pushServo = null;
 
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
 
-    DcMotor Front_Right = null;
-    DcMotor Front_Left = null;
-    DcMotor Back_Right = null;
-    DcMotor Back_Left = null;
-
     SparkFunOTOS myOtos;
     MovementLib.Robot robot = null;
+
 
     public void runOpMode() {
         initAprilTag();
 
-        // Hardware initialization
-        Front_Right = hardwareMap.get(DcMotor.class, "frontright");
-        Front_Left = hardwareMap.get(DcMotor.class, "frontleft");
-        Back_Right = hardwareMap.get(DcMotor.class, "backright");
-        Back_Left = hardwareMap.get(DcMotor.class, "backleft");
-
         robot = new MovementLib.Robot(hardwareMap);
 
         robot.Reverse_Left();
+
+        Arm = hardwareMap.get(DcMotorEx.class, "arm");
+        Arm.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        Arm.setTargetPosition(0);
+        Arm.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+
+        leftSpinner = hardwareMap.get(DcMotorEx.class, "leftspinner");
+        rightSpinner = hardwareMap.get(DcMotorEx.class, "rightspinner");
+        leftSpinner.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        rightSpinner.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        rightSpinner.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        pushServo = hardwareMap.get(Servo.class, "servo");
 
         waitForStart();
 
@@ -74,6 +85,7 @@ public class aimingAuto extends LinearOpMode {
                             robot.Omni_Move(0, 0, 0, 0);
                         }else {
                             telemetry.addLine(":)");
+                            LaunchBall();
                         }
 
                         telemetry.addData("Barring", barring);
@@ -104,5 +116,20 @@ public class aimingAuto extends LinearOpMode {
         List<AprilTagDetection> detections = aprilTag.getDetections();
         if (detections == null || detections.isEmpty()) return null;
         return detections.get(0);
+    }
+
+    private boolean LaunchBall() {
+        if(Arm.getCurrentPosition() < 600) {
+            Arm.setPower(1);
+            robot.Arm_Motor.setTargetPosition(640); // Move arm up
+        }
+        else if(leftSpinner.getVelocity() < SPINNER_VELOCITY) {
+            leftSpinner.setVelocity(SPINNER_VELOCITY);
+            rightSpinner.setVelocity(SPINNER_VELOCITY);
+        }
+        else {
+            pushServo.setPosition(0.7);
+        }
+        return true;
     }
 }
