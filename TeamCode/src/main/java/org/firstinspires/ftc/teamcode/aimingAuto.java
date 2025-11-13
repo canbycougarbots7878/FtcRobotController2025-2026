@@ -77,7 +77,7 @@ public class aimingAuto extends LinearOpMode {
                         RobotTurn = 0.1;
 
                         if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(YDisDif) > 1)) && !targetPoseAchieved) {
-                            robot.Omni_Move((YDisDif)/18, (yaw)/18, (barring)/18, 1);
+                            robot.Omni_Move((YDisDif)/36, (yaw)/18, (barring)/18, 1);
                         } else if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5)) && targetPoseAchieved) {
                             targetPoseAchieved = false;
                         } else if (!targetPoseAchieved) {
