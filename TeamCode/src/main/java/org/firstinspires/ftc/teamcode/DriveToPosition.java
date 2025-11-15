@@ -4,6 +4,8 @@ import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+
 @TeleOp(name="Drive to position", group="Testing")
 public class DriveToPosition extends LinearOpMode {
     // Runs once (Load)
@@ -38,14 +40,13 @@ public class DriveToPosition extends LinearOpMode {
             if(robot.timeSinceLastAprilTagCheck.milliseconds() < 100) {
                 robot.UpdateAprilTagDetections();
             }
-            //robot.TelemetryAprilTags(telemetry);
-            SparkFunOTOS.Pose2D pos = robot.GetPositionBasedOnAprilTag();
-            MovementLib.Pose2DSetHeading(pos, 0);
-            if(pos.x + pos.y + pos.h != 0) {
-                telemetry.addData("X", pos.x);
-                telemetry.addData("Y", pos.y);
-                telemetry.addData("H", pos.h);
+            if(gamepad1.b) {
+                if(!robot.currentDetections.isEmpty()) {
+                    AprilTagDetection detection = robot.currentDetections.get(0);
+
+                }
             }
+            //robot.TelemetryAprilTags(telemetry);
             telemetry.update();
         }
     }

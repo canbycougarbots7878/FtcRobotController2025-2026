@@ -16,8 +16,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 import java.util.Locale;
 
-@Autonomous(name="aiming Auto Blue", group="Robot")
-public class aimingAuto extends LinearOpMode {
+@Autonomous(name="aiming Auto Red", group="Robot")
+public class aimingAutoRED extends LinearOpMode {
     private final double SPINNER_VELOCITY = 1200;
 
     public DcMotorEx Arm = null;
@@ -68,7 +68,7 @@ public class aimingAuto extends LinearOpMode {
             while (opModeIsActive()) {
                 AprilTagDetection detection = getFirstDetection();
                 if (detection != null && detection.metadata != null) {
-                    if (detection.metadata.id == 20){
+                    if (detection.metadata.id == 24){
                         double barring = detection.ftcPose.bearing;
                         double yaw = detection.ftcPose.yaw;
                         double Ydistance = detection.ftcPose.y;

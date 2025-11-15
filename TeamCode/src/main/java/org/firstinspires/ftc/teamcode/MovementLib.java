@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -32,6 +33,19 @@ public class MovementLib {
         public double magnitude() {
             return Math.sqrt(x*x+y*y);
         }
+    }
+    public static SparkFunOTOS.Pose2D Pose2DRotate(SparkFunOTOS.Pose2D pose, double angle) {
+        // Using rotation matrix to rotate Pose2D to target angle
+
+        double currentAngle = pose.h * 0.01745329251; // Convert degrees to radians for sin and cos functions
+
+        // Apply rotation matrix
+        double x = pose.x * Math.cos(angle) - pose.y * Math.sin(angle);
+        double y = pose.x * Math.sin(angle) + pose.y * Math.cos(angle);
+
+        SparkFunOTOS.Pose2D newPos = new SparkFunOTOS.Pose2D(x,y,currentAngle+angle);
+
+        return newPos;
     }
     public static SparkFunOTOS.Pose2D Pose2DSetHeading(SparkFunOTOS.Pose2D pos, double targetAngle) {
         // Using rotation matrix to rotate Pose2D to target angle
@@ -230,7 +244,7 @@ public class MovementLib {
             this.Omni_Move_Transformed(dx, dy, dh, pos.h * 0.01745329251, speed);
         }
         public void Return_Home() {
-            Omni_Move_To_Target(new SparkFunOTOS.Pose2D(0,0,0), 0.5);
+            Omni_Move_To_Target(new SparkFunOTOS.Pose2D(0,0,0), 0.8);
         }
         public double Distance_To(SparkFunOTOS.Pose2D target) {
             SparkFunOTOS.Pose2D pos = Get_Position();
@@ -283,9 +297,12 @@ public class MovementLib {
             for (AprilTagDetection detection : currentDetections) {
                 if (detection.metadata != null) {
                     telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
+                    telemetry.addLine(String.format("XYZ (Raw) %6.1f %6.1f %6.1f", detection.rawPose.x, detection.rawPose.y, detection.rawPose.z));
                     telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
                     telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
                     telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
+
+                    telemetry.addLine("\n---- Magic");
                 } else {
                     telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
                 }
@@ -302,7 +319,8 @@ public class MovementLib {
         public SparkFunOTOS.Pose2D GetPositionBasedOnAprilTag() {
             for (AprilTagDetection detection : currentDetections) {
                 if (detection.id == 20) {
-                    return new SparkFunOTOS.Pose2D(detection.ftcPose.x,detection.ftcPose.y,detection.ftcPose.yaw);
+                    SparkFunOTOS.Pose2D pose = new SparkFunOTOS.Pose2D(detection.ftcPose.x,detection.ftcPose.y,detection.ftcPose.yaw);
+                    return Pose2DRotate(pose,-detection.ftcPose.yaw+233.3);
                 }
             }
             return new SparkFunOTOS.Pose2D();
