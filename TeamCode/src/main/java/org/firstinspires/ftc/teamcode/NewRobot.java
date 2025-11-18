@@ -62,7 +62,7 @@ public class NewRobot extends LinearOpMode {
 
     private void handleServo() {
         // Servo control (A = close, default = open)
-        servo.setPosition(gamepad1.a ? 0.7 : 1.0);
+        servo.setPosition(gamepad1.a || leftSpinner.getVelocity() > SPINNER_VELOCITY ? 0.7 : 1.0);
     }
 
     private void handleArm() {
@@ -92,9 +92,6 @@ public class NewRobot extends LinearOpMode {
     private void handleHoming() {
         if (gamepad1.start) robot.Reset_Otos();
         if (gamepad1.y) robot.Return_Home();
-        if (gamepad1.b) {
-
-        }
     }
 
     private void handleSpinners() {
