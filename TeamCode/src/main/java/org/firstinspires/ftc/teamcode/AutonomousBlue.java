@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -14,10 +13,9 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
-import java.util.Locale;
 
-@Autonomous(name="aiming Auto Blue", group="Robot")
-public class aimingAuto extends LinearOpMode {
+@Autonomous(name="Autonomous Blue", group="Robot")
+public class AutonomousBlue extends LinearOpMode {
     private final double SPINNER_VELOCITY = 1200;
 
     public DcMotorEx Arm = null;
@@ -78,7 +76,7 @@ public class aimingAuto extends LinearOpMode {
 
                         if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(YDisDif) > 1)) && !targetPoseAchieved) {
                             robot.Omni_Move((YDisDif)/36, (yaw)/18, (barring)/18, 1);
-                        } else if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5)) && targetPoseAchieved) {
+                        } else if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(YDisDif) > 1)) && targetPoseAchieved) {
                             targetPoseAchieved = false;
                         } else if (!targetPoseAchieved) {
                             targetPoseAchieved = true;

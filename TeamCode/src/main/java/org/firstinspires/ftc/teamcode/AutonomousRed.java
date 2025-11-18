@@ -16,8 +16,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 import java.util.Locale;
 
-@Autonomous(name="aiming Auto Red", group="Robot")
-public class aimingAutoRED extends LinearOpMode {
+@Autonomous(name="Autonomous Red", group="Robot")
+public class AutonomousRed extends LinearOpMode {
     private final double SPINNER_VELOCITY = 1200;
 
     public DcMotorEx Arm = null;
@@ -78,7 +78,7 @@ public class aimingAutoRED extends LinearOpMode {
 
                         if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(YDisDif) > 1)) && !targetPoseAchieved) {
                             robot.Omni_Move((YDisDif)/36, (yaw)/18, (barring)/18, 1);
-                        } else if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5)) && targetPoseAchieved) {
+                        } else if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(YDisDif) > 1)) && targetPoseAchieved) {
                             targetPoseAchieved = false;
                         } else if (!targetPoseAchieved) {
                             targetPoseAchieved = true;

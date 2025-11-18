@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name="Auto", group="Robot")
+@Autonomous(name="Simple Auto", group="Robot")
 public class quickAuto extends LinearOpMode {
     DcMotor Front_Right = null;
     DcMotor Front_Left = null;

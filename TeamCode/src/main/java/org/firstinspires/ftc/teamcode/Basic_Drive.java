@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-
+@Disabled
 @TeleOp(name = "Basic Drive", group = "Movement")
 public class Basic_Drive extends LinearOpMode {
     DcMotor Front_Right = null;

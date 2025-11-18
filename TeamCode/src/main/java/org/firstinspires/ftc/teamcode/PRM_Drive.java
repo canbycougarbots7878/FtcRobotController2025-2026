@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,7 +13,7 @@ import java.lang.Math;
 
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-
+@Disabled
 @TeleOp(name = "Player Relative Drive", group = "Movement")
 public class PRM_Drive extends LinearOpMode {
     MovementLib.Robot robot = null;
