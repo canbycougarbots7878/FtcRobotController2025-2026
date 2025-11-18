@@ -15,7 +15,7 @@ public class MainTeleOp extends LinearOpMode {
 
     private boolean armUp = false;
     private double driveSpeed = 0.5;
-    private double SPINNER_VELOCITY = 1010;
+    private double SPINNER_VELOCITY = 500;
 
     @Override
     public void runOpMode() {
@@ -60,7 +60,7 @@ public class MainTeleOp extends LinearOpMode {
 
     private void handleServo() {
         // Servo control (A = close, default = open)
-        servo.setPosition(gamepad1.a || leftSpinner.getVelocity() > SPINNER_VELOCITY ? 0.7 : 1.0);
+        servo.setPosition(gamepad1.a ? 0.8 : 1.0);
     }
 
     private void handleArm() {
