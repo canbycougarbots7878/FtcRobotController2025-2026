@@ -1,15 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.content.pm.LauncherActivityInfo;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "New Robot Test", group = "Official")
-public class NewRobot extends LinearOpMode {
+@TeleOp(name = "Main TeleOp", group = "Official")
+public class MainTeleOp extends LinearOpMode {
 
     private DcMotorEx leftSpinner, rightSpinner;
     private Servo servo;
