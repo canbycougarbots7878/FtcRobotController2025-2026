@@ -309,12 +309,14 @@ public class MovementLib {
                 telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
             }
         }
-        public void LookAtAprilTag() {
+        public boolean LookAtAprilTag() {
             if(!currentDetections.isEmpty()) {
                 double target = currentDetections.get(0).center.x;
                 double turn = - (320 - target) / 320;
                 Omni_Move(0,0,turn);
+                return true;
             }
+            return false;
         }
         public SparkFunOTOS.Pose2D GetPositionBasedOnAprilTag() {
             for (AprilTagDetection detection : currentDetections) {
