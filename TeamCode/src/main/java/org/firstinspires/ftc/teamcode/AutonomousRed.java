@@ -55,6 +55,8 @@ public class AutonomousRed extends LinearOpMode {
 
         if (opModeIsActive()) {
 
+            int rotateCounter = 0;
+            int rotateCounterLimit = 100;
 
             robot.Omni_Move( 0.5, 0, 0, 1.0);
 
@@ -97,8 +99,12 @@ public class AutonomousRed extends LinearOpMode {
 
                 }else {
                     robot.Omni_Move(0, 0, RobotTurn, 1);
-                    sleep(150);
-                    RobotTurn += ((Math.abs(RobotTurn)+0.1)*(-Math.copySign(1, RobotTurn)));
+                    if (rotateCounter >= rotateCounterLimit){
+                        RobotTurn += ((Math.abs(RobotTurn)+0.1)*(-Math.copySign(1, RobotTurn)));
+                        rotateCounter = -1;
+                        rotateCounterLimit *= 2;
+                    }
+                    rotateCounter += 1;
                 }
                 robot.Omni_Move(0, 0, 0, 0);
             }

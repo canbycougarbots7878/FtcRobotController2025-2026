@@ -14,7 +14,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-@Autonomous(name="Autonomous Blue", group="Robot")
+@Autonomous(name = "Autonomous Blue", group = "Robot")
 public class AutonomousBlue extends LinearOpMode {
     private final double SPINNER_VELOCITY = 1200;
 
@@ -53,12 +53,14 @@ public class AutonomousBlue extends LinearOpMode {
 
         if (opModeIsActive()) {
 
+            int rotateCounter = 0;
+            int rotateCounterLimit = 100;
 
-            robot.Omni_Move( 0.5, 0, 0, 1.0);
+            robot.Omni_Move(0.5, 0, 0, 1.0);
 
             sleep(1500);
 
-            robot.Omni_Move( 0, 0, 0, 0.0);
+            robot.Omni_Move(0, 0, 0, 0.0);
 
             boolean targetPoseAchieved = false;
             double RobotTurn = 0.1;
@@ -66,7 +68,7 @@ public class AutonomousBlue extends LinearOpMode {
             while (opModeIsActive()) {
                 AprilTagDetection detection = getFirstDetection();
                 if (detection != null && detection.metadata != null) {
-                    if (detection.metadata.id == 20){
+                    if (detection.metadata.id == 20) {
                         double barring = detection.ftcPose.bearing;
                         double yaw = detection.ftcPose.yaw;
                         double Ydistance = detection.ftcPose.y;
@@ -75,13 +77,13 @@ public class AutonomousBlue extends LinearOpMode {
                         RobotTurn = 0.1;
 
                         if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(YDisDif) > 1)) && !targetPoseAchieved) {
-                            robot.Omni_Move((YDisDif)/36, (yaw)/18, (barring)/18, 1);
+                            robot.Omni_Move((YDisDif) / 36, (yaw) / 18, (barring) / 18, 1);
                         } else if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(YDisDif) > 1)) && targetPoseAchieved) {
                             targetPoseAchieved = false;
                         } else if (!targetPoseAchieved) {
                             targetPoseAchieved = true;
                             robot.Omni_Move(0, 0, 0, 0);
-                        }else {
+                        } else {
                             telemetry.addLine(":)");
                             LaunchBall();
                         }
@@ -93,10 +95,14 @@ public class AutonomousBlue extends LinearOpMode {
                         telemetry.update();
                     }
 
-                }else {
+                } else {
                     robot.Omni_Move(0, 0, RobotTurn, 1);
-                    sleep(150);
-                    RobotTurn += ((Math.abs(RobotTurn)+0.1)*(-Math.copySign(1, RobotTurn)));
+                    if (rotateCounter >= rotateCounterLimit){
+                        RobotTurn += ((Math.abs(RobotTurn)+0.1)*(-Math.copySign(1, RobotTurn)));
+                        rotateCounter = -1;
+                        rotateCounterLimit *= 2;
+                    }
+                    rotateCounter += 1;
                 }
                 robot.Omni_Move(0, 0, 0, 0);
             }
@@ -117,15 +123,13 @@ public class AutonomousBlue extends LinearOpMode {
     }
 
     private boolean LaunchBall() {
-        if(Arm.getCurrentPosition() < 600) {
+        if (Arm.getCurrentPosition() < 600) {
             Arm.setPower(1);
             robot.Arm_Motor.setTargetPosition(640); // Move arm up
-        }
-        else if(leftSpinner.getVelocity() < SPINNER_VELOCITY) {
+        } else if (leftSpinner.getVelocity() < SPINNER_VELOCITY) {
             leftSpinner.setVelocity(SPINNER_VELOCITY);
             rightSpinner.setVelocity(SPINNER_VELOCITY);
-        }
-        else {
+        } else {
             pushServo.setPosition(0.7);
         }
         return true;
