@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static java.lang.Math.abs;
+
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -169,8 +171,8 @@ public class MovementLib {
             double br = Forward + Right + Rotate;
 
             // normalize so no value exceeds 1
-            double max = Math.max(1.0, Math.max(Math.abs(fl),
-                    Math.max(Math.abs(fr), Math.max(Math.abs(bl), Math.abs(br)))));
+            double max = Math.max(1.0, Math.max(abs(fl),
+                    Math.max(abs(fr), Math.max(abs(bl), abs(br)))));
 
             fl /= max;
             fr /= max;
@@ -238,8 +240,8 @@ public class MovementLib {
         public void Omni_Move_To_Target(SparkFunOTOS.Pose2D target,double speed) {
             if(!OTOS_ENABLED) return;
             SparkFunOTOS.Pose2D pos = Get_Position();
-            double dx = 2 * (target.x - pos.x) / 10.0;
-            double dy = -2 * (target.y - pos.y) / 10.0;
+            double dx = 3 * (target.x - pos.x);
+            double dy = -3 * (target.y - pos.y);
             double dh = (target.h - pos.h) / 18.0;
             this.Omni_Move_Transformed(dx, dy, dh, pos.h * 0.01745329251, speed);
         }
@@ -269,8 +271,13 @@ public class MovementLib {
             Arm_Motor.setTargetPosition(0);
             Arm_Motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         }
+        public void Arm_Glide_To(int tick) {
+        }
 
         // Imu functions
+        public void Reset_IMU() {
+            this.imu.resetYaw();
+        }
         public void PRM_Move(double localForward, double localRight, double RotateCC, double speed) {
             // Angle processing
             YawPitchRollAngles angles = this.imu.getRobotYawPitchRollAngles();
@@ -311,8 +318,8 @@ public class MovementLib {
         }
         public boolean LookAtAprilTag() {
             if(!currentDetections.isEmpty()) {
-                double target = currentDetections.get(0).center.x;
-                double turn = - (320 - target) / 320;
+                double target = currentDetections.get(0).ftcPose.bearing;
+                double turn =  2 * target;
                 Omni_Move(0,0,turn);
                 return true;
             }

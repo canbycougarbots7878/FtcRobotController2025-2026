@@ -6,6 +6,11 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.Reader;
+import java.util.Scanner;
+
 @TeleOp(name = "Main TeleOp", group = "Official")
 public class MainTeleOp extends LinearOpMode {
 
@@ -13,9 +18,10 @@ public class MainTeleOp extends LinearOpMode {
     private Servo servo;
     private MovementLib.Robot robot;
 
+    private boolean PRM_ENABLED = false;
     private boolean armUp = false;
     private double driveSpeed = 0.5;
-    private double SPINNER_VELOCITY = 500;
+    private double SPINNER_VELOCITY = 1000;
 
     @Override
     public void runOpMode() {
@@ -26,11 +32,16 @@ public class MainTeleOp extends LinearOpMode {
         robot.Set_Arm_Power(1);
 
         while (opModeIsActive()) {
-            handleDrive();
-            handleServo();
-            handleArm();
-            handleHoming();
+            if(gamepad1.start) {
+                handleConfig();
+            }
+            else {
+                handleServo();
+                handleArm();
+                handleHoming();
+            }
             handleSpinners();
+            handleDrive();
             updateTelemetry();
         }
     }
@@ -40,10 +51,11 @@ public class MainTeleOp extends LinearOpMode {
         robot = new MovementLib.Robot(hardwareMap)
                 .enableArm()
                 .enableAprilTagDetection()
-                .enableOtos();
+                .enableOtos()
+                .enableIMU();
 
         robot.Reverse_Left();
-        robot.Arm_Motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        //robot.Arm_Motor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         servo = hardwareMap.get(Servo.class, "servo");
 
@@ -53,9 +65,23 @@ public class MainTeleOp extends LinearOpMode {
     }
 
     // ------------------ Control Logic ------------------ //
+    private void handleConfig() {
+        if(gamepad1.yWasPressed()) {
+            robot.Reset_Otos();
+        }
+        if(gamepad1.aWasPressed()) {
+            robot.Reset_IMU();
+            PRM_ENABLED = !PRM_ENABLED;
+        }
+    }
 
     private void handleDrive() {
-        robot.Omni_Move_Controller(gamepad1, 0.5f + gamepad1.left_trigger / 2.0f);
+        if(PRM_ENABLED) {
+            robot.PRM_Move_Controller(gamepad1, 0.5f + gamepad1.left_trigger / 2.0f);
+        }
+        else {
+            robot.Omni_Move_Controller(gamepad1, 0.5f + gamepad1.left_trigger / 2.0f);
+        }
     }
 
     private void handleServo() {
@@ -96,7 +122,6 @@ public class MainTeleOp extends LinearOpMode {
         if (robot.timeSinceLastAprilTagCheck.milliseconds() > 10) {
             robot.UpdateAprilTagDetections();
         }
-        if (gamepad1.start) robot.Reset_Otos();
         if (gamepad1.y) robot.Return_Home();
         if(gamepad1.b) {
             robot.LookAtAprilTag();
@@ -113,7 +138,7 @@ public class MainTeleOp extends LinearOpMode {
             setSpinnerVelocity(SPINNER_VELOCITY);
         } else if (gamepad1.left_bumper) {      // Intake
             driveSpeed = 0.5;
-            setSpinnerVelocity(-1200);
+            setSpinnerVelocity(-1000);
         } else {                                // Stop
             driveSpeed = 0.5;
             stopSpinners();
@@ -141,11 +166,25 @@ public class MainTeleOp extends LinearOpMode {
 
     // ------------------ Telemetry ------------------ //
     private void updateTelemetry() {
+        telemetry.addData("Arm State", armUp);
+        telemetry.addData("Arm Position", robot.Arm_Motor.getCurrentPosition());
+        telemetry.addData("Arm Target", robot.Arm_Motor.getTargetPosition());
         telemetry.addData("Apriltag detections", robot.currentDetections.size());
         telemetry.addData("Ms since last update", robot.timeSinceLastAprilTagCheck.milliseconds());
         telemetry.addData("Drive Speed", driveSpeed);
         telemetry.addData("Spinner Current Velocity", getSpinnerVelocity());
         telemetry.addData("Spinner Target Velocity", SPINNER_VELOCITY);
         telemetry.update();
+    }
+
+    // Config file
+    private void ReadSpeedConfig() {
+        File file = new File("speed.txt");
+        try (Scanner reader = new Scanner(file)) {
+            String data = reader.nextLine();
+            SPINNER_VELOCITY = Integer.parseInt(data);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
