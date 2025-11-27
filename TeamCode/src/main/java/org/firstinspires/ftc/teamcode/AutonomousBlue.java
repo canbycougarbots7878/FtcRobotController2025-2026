@@ -16,7 +16,7 @@ import java.util.List;
 
 @Autonomous(name = "Autonomous Blue", group = "Robot")
 public class AutonomousBlue extends LinearOpMode {
-    private final double SPINNER_VELOCITY = 1200;
+    private final double SPINNER_VELOCITY = 1150;
 
     public DcMotorEx Arm = null;
     private DcMotorEx leftSpinner, rightSpinner;
@@ -32,7 +32,7 @@ public class AutonomousBlue extends LinearOpMode {
     public void runOpMode() {
         initAprilTag();
 
-        robot = new MovementLib.Robot(hardwareMap);
+        robot = new MovementLib.Robot(hardwareMap).enableArm();
 
         robot.Reverse_Left();
 
@@ -56,12 +56,6 @@ public class AutonomousBlue extends LinearOpMode {
             int rotateCounter = 0;
             int rotateCounterLimit = 100;
 
-            robot.Omni_Move(0.5, 0, 0, 1.0);
-
-            sleep(1500);
-
-            robot.Omni_Move(0, 0, 0, 0.0);
-
             boolean targetPoseAchieved = false;
             double RobotTurn = 0.1;
 
@@ -76,9 +70,9 @@ public class AutonomousBlue extends LinearOpMode {
                         double YDisDif = TargetYDis - Ydistance;
                         RobotTurn = 0.1;
 
-                        if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(YDisDif) > 1)) && !targetPoseAchieved) {
-                            robot.Omni_Move((YDisDif) / 36, (yaw) / 18, (barring) / 18, 1);
-                        } else if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(YDisDif) > 1)) && targetPoseAchieved) {
+                        if (((Math.abs(barring) > 1)) && !targetPoseAchieved) {
+                            robot.Omni_Move(0, 0, (barring) / 18, 1);
+                        } else if (((Math.abs(barring) > 1)) && targetPoseAchieved) {
                             targetPoseAchieved = false;
                         } else if (!targetPoseAchieved) {
                             targetPoseAchieved = true;
@@ -124,9 +118,11 @@ public class AutonomousBlue extends LinearOpMode {
 
     private boolean LaunchBall() {
         if (Arm.getCurrentPosition() < 600) {
+            telemetry.addLine("Arm Up");
             Arm.setPower(1);
             robot.Arm_Motor.setTargetPosition(640); // Move arm up
         } else if (leftSpinner.getVelocity() < SPINNER_VELOCITY) {
+            telemetry.addData("Spinning Up", SPINNER_VELOCITY);
             leftSpinner.setVelocity(SPINNER_VELOCITY);
             rightSpinner.setVelocity(SPINNER_VELOCITY);
         } else {

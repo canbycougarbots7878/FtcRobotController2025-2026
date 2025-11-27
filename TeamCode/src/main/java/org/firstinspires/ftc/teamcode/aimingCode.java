@@ -18,7 +18,7 @@ import java.util.List;
 @Disabled
 @TeleOp(name="Aiming Test", group="Robot")
 public class aimingCode extends LinearOpMode {
-    private final double SPINNER_VELOCITY = 1200;
+    private final double SPINNER_VELOCITY = 1150;
 
     public DcMotorEx Arm = null;
     private DcMotorEx leftSpinner, rightSpinner;
