@@ -15,10 +15,10 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-@Disabled
 @TeleOp(name="Aiming Test", group="Robot")
 public class aimingCode extends LinearOpMode {
     private final double SPINNER_VELOCITY = 1150;
+    private final int ARM_POS = 640;
 
     public DcMotorEx Arm = null;
     private DcMotorEx leftSpinner, rightSpinner;
@@ -30,6 +30,7 @@ public class aimingCode extends LinearOpMode {
     SparkFunOTOS myOtos;
     MovementLib.Robot robot = null;
 
+    int stage = 1;
 
     public void runOpMode() {
         initAprilTag();
@@ -98,6 +99,9 @@ public class aimingCode extends LinearOpMode {
                     }
                     rotateCounter += 1;
                 }
+                if(stage > 0) {
+                    LaunchBall();
+                }
                 robot.Omni_Move(0, 0, 0, 0);
             }
 
@@ -117,16 +121,27 @@ public class aimingCode extends LinearOpMode {
     }
 
     private boolean LaunchBall() {
-        if(Arm.getCurrentPosition() < 600) {
-            Arm.setPower(1);
-            robot.Arm_Motor.setTargetPosition(640); // Move arm up
+        if(Arm.getCurrentPosition() > ARM_POS - 10 && stage == 1) {
+            stage = 2;
         }
-        else if(leftSpinner.getVelocity() < SPINNER_VELOCITY) {
-            leftSpinner.setVelocity(SPINNER_VELOCITY);
-            rightSpinner.setVelocity(SPINNER_VELOCITY);
+        if(leftSpinner.getVelocity() > SPINNER_VELOCITY - 10 && stage == 2) {
+            stage = 3;
         }
-        else {
-            pushServo.setPosition(0.7);
+        if(leftSpinner.getVelocity() > SPINNER_VELOCITY - 10 && stage == 3) {
+            stage = 4;
+        }
+        switch(stage) {
+            case 1:
+                Arm.setPower(1);
+                robot.Arm_Motor.setTargetPosition(ARM_POS); // Move arm up
+                break;
+            case 2:
+                leftSpinner.setVelocity(SPINNER_VELOCITY);
+                rightSpinner.setVelocity(SPINNER_VELOCITY);
+                break;
+            case 3:
+                pushServo.setPosition(0.7);
+                break;
         }
         return true;
     }
