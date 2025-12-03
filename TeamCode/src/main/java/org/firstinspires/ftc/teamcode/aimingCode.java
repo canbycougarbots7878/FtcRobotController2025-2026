@@ -72,7 +72,7 @@ public class aimingCode extends LinearOpMode {
                         RobotTurn = 0.1;
 
                         if (((Math.abs(barring) > 1)) && !targetPoseAchieved) {
-                            robot.Omni_Move(0, 0, (barring)/18, 1);
+                            robot.Omni_Move(0, 0, (barring)/20, 1);
                         } else if (((Math.abs(barring) > 1)) && targetPoseAchieved) {
                             targetPoseAchieved = false;
                         } else if (!targetPoseAchieved) {
