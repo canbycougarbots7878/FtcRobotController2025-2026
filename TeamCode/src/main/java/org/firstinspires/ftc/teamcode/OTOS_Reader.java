@@ -22,11 +22,11 @@ public class OTOS_Reader extends LinearOpMode {
 
     private AprilTagProcessor aprilTag;
 
-    private double aprilTagXm = 1.50; //m
-    private double aprilTagYm = 1.355; //m
+    private double aprilTagXm = -1.50; //m
+    private double aprilTagYm = -1.355; //m
     private double aprilTagAngle = 60.5; //degrees
 
-    public SparkFunOTOS.Pose2D target = new SparkFunOTOS.Pose2D(0,0,0);
+    public SparkFunOTOS.Pose2D target = new SparkFunOTOS.Pose2D(1.21,0,-135);
     public void runOpMode() {
         initAprilTag();
 
@@ -43,7 +43,9 @@ public class OTOS_Reader extends LinearOpMode {
 
         SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
         myOtos.setPosition(currentPosition);
-
+        double robotX = 0;
+        double robotY = 0;
+        double robotHeading = 0;
 
         waitForStart();
         while(opModeIsActive()) {
@@ -52,28 +54,40 @@ public class OTOS_Reader extends LinearOpMode {
 
             AprilTagDetection detection = getFirstDetection();
             if (detection != null && detection.metadata != null) {
-                double robotX = 0;
-                double robotY = 0;
-                double robotHeading = 0;
+
                 if (detection.metadata.id == 20) {
                     double barring = detection.ftcPose.bearing;
                     double yaw = detection.ftcPose.yaw;
-                    double range = detection.ftcPose.range;
+                    double range = detection.ftcPose.range * 0.0254;
 
                     robotHeading = -yaw + aprilTagAngle + 180;
                     double RangeHeading = robotHeading + barring;
 
+                    double CameraHeading = -160.5 + RangeHeading;
+
                     double RangeHeadingRad = Math.toRadians(RangeHeading);
 
-                    robotX = aprilTagXm - (0.0254 * (range)) * Math.cos(RangeHeadingRad);
-                    robotY = aprilTagYm + (0.0254 * (range)) * Math.sin(RangeHeadingRad);
+                    double CameraHeadingRad = Math.toRadians(CameraHeading);
 
+                    robotX = aprilTagXm - (range) * Math.cos(RangeHeadingRad) + (0.195) * Math.cos(CameraHeadingRad) + 0.415;
+                    robotY = aprilTagYm - (range) * Math.sin(RangeHeadingRad) + (0.195) * Math.sin(CameraHeadingRad) - 0.255;
+                    pos.x = robotX;
+                    pos.y = robotY;
+                    pos.h = robotHeading;
+                    myOtos.setPosition(pos);
+
+                    telemetry.addData("barring", barring);
+                    telemetry.addData("yaw", yaw);
+                    telemetry.addData("range", range);
+                    telemetry.addLine();
+                    telemetry.addData("robotHeading", robotHeading);
+                    telemetry.addData("RangeHeading", RangeHeading);
+                    telemetry.addData("CameraHeading", CameraHeading);
+                    telemetry.addLine();
+                    telemetry.addData("robotX", robotX);
+                    telemetry.addData("robotY", robotY);
+                    telemetry.addLine();
                 }
-                pos.x = robotX;
-                pos.y = robotY;
-                pos.h = robotHeading;
-                myOtos.setPosition(pos);
-
             }
 
             // Log the position to the telemetry
