@@ -21,12 +21,12 @@ public class MainTeleOp extends LinearOpMode {
     private boolean PRM_ENABLED = false;
     private boolean armUp = false;
     private double driveSpeed = 0.5;
-    private double SPINNER_VELOCITY = 1000;
+    private double SPINNER_VELOCITY = 1150;
 
     @Override
     public void runOpMode() {
         initHardware();
-
+        //ReadSpeedConfig();
         waitForStart();
 
         robot.Set_Arm_Power(1);
@@ -69,7 +69,7 @@ public class MainTeleOp extends LinearOpMode {
         if(gamepad1.yWasPressed()) {
             robot.Reset_Otos();
         }
-        if(gamepad1.aWasPressed()) {
+        if(gamepad1.xWasPressed()) {
             robot.Reset_IMU();
             PRM_ENABLED = !PRM_ENABLED;
         }
