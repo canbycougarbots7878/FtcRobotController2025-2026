@@ -67,10 +67,10 @@ public class aimingCode extends LinearOpMode {
 
 
             while (opModeIsActive()) {
-                if (stage < 5){
+                if (stage < 6){
                     robotAiming();
                 }
-                if(stage >= 5) {
+                if(stage >= 6) {
                     LaunchBall();
                 }
                 telemetry.addData("Stage",stage);
@@ -81,14 +81,16 @@ public class aimingCode extends LinearOpMode {
     }
     private void robotAiming(){
         AprilTagDetection detection = getFirstDetection();
-        if (detection != null && detection.metadata != null && stage == 0) {
+        if (detection != null && detection.metadata != null && stage == 1) {
+            stage = 2;
+        } else if (stage == 2){
             stage = 1;
-        } else if (stage == 1){
-            stage = 0;
         }
 
         switch (stage){
             case 0:
+
+            case 1:
                 robot.Omni_Move(0, 0, RobotTurn, 1);
                 if (rotateCounter >= rotateCounterLimit){
                     RobotTurn += ((Math.abs(RobotTurn)+0.1)*(-Math.copySign(1, RobotTurn)));
@@ -97,12 +99,12 @@ public class aimingCode extends LinearOpMode {
                 }
                 rotateCounter += 1;
                 break;
-            case 1:
+            case 2:
                 if (detection.metadata.id == 20){
-                    stage = 2;
+                    stage = 3;
                 }
                 break;
-            case 2:
+            case 3:
                 assert detection != null;
                 barring = detection.ftcPose.bearing;
                 yaw = detection.ftcPose.yaw;
@@ -113,18 +115,18 @@ public class aimingCode extends LinearOpMode {
                 RobotTurn = 0.1;
 
                 if (((Math.abs(barring) > 1))) {
-                    stage = 3;
-                }else {
                     stage = 4;
+                }else {
+                    stage = 5;
                 }
                 break;
-            case 3:
+            case 4:
                 robot.Omni_Move(0, 0, (barring)/20, 1);
                 stage = 0;
                 break;
-            case 4:
+            case 5:
                 telemetry.addLine(":)");
-                stage = 5;
+                stage = 6;
                 robot.Omni_Move(0, 0, 0, 0);
                 LaunchBall();
         }
@@ -145,25 +147,25 @@ public class aimingCode extends LinearOpMode {
     }
 
     private void LaunchBall() {
-        if(Arm.getCurrentPosition() > ARM_POS - 10 && stage == 5) {
-            stage = 6;
-        }
-        if(leftSpinner.getVelocity() > SPINNER_VELOCITY - 10 && stage == 6) {
+        if(Arm.getCurrentPosition() > ARM_POS - 10 && stage == 6) {
             stage = 7;
         }
+        if(leftSpinner.getVelocity() > SPINNER_VELOCITY - 10 && stage == 7) {
+            stage = 8;
+        }
         switch(stage) {
-            case 5:
+            case 6:
                 Arm.setPower(1);
                 robot.Arm_Motor.setTargetPosition(ARM_POS); // Move arm up
                 telemetry.addData("Arm going up", robot.Arm_Motor.getTargetPosition());
                 break;
-            case 6:
+            case 7:
                 leftSpinner.setVelocity(SPINNER_VELOCITY);
                 rightSpinner.setVelocity(SPINNER_VELOCITY);
                 telemetry.addData("Speed", leftSpinner.getVelocity());
                 telemetry.addData("Target Speed", leftSpinner.getVelocity());
                 break;
-            case 7:
+            case 8:
                 pushServo.setPosition(0.7);
                 break;
         }
