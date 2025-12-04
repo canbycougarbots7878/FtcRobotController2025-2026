@@ -70,7 +70,7 @@ public class aimingCode extends LinearOpMode {
                 if (stage < 5){
                     robotAiming();
                 }
-                if(stage > 5) {
+                if(stage >= 5) {
                     LaunchBall();
                 }
 
