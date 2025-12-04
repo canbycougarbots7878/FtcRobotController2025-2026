@@ -73,12 +73,12 @@ public class aimingCode extends LinearOpMode {
                 if(stage >= 5) {
                     LaunchBall();
                 }
-
+                telemetry.addData("Stage",stage);
+                telemetry.update();
             }
 
         }
     }
-
     private void robotAiming(){
         AprilTagDetection detection = getFirstDetection();
         if (detection != null && detection.metadata != null && stage == 0) {
@@ -151,19 +151,19 @@ public class aimingCode extends LinearOpMode {
         if(leftSpinner.getVelocity() > SPINNER_VELOCITY - 10 && stage == 6) {
             stage = 7;
         }
-        if(leftSpinner.getVelocity() > SPINNER_VELOCITY - 10 && stage == 7) {
-            stage = 8;
-        }
         switch(stage) {
-            case 6:
+            case 5:
                 Arm.setPower(1);
                 robot.Arm_Motor.setTargetPosition(ARM_POS); // Move arm up
+                telemetry.addData("Arm going up", robot.Arm_Motor.getTargetPosition());
                 break;
-            case 7:
+            case 6:
                 leftSpinner.setVelocity(SPINNER_VELOCITY);
                 rightSpinner.setVelocity(SPINNER_VELOCITY);
+                telemetry.addData("Speed", leftSpinner.getVelocity());
+                telemetry.addData("Target Speed", leftSpinner.getVelocity());
                 break;
-            case 8:
+            case 7:
                 pushServo.setPosition(0.7);
                 break;
         }
