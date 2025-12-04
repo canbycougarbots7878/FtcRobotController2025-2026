@@ -109,6 +109,12 @@ public class OTOS_Reader extends LinearOpMode {
             robot.Omni_Move_To_Target(target, 0.5);
 
 
+            if (robot.Distance_To(target) < 0.5){
+                telemetry.addLine();
+                telemetry.addLine(";)");
+            }
+
+
             // Update the telemetry on the driver station
             telemetry.update();
         }
