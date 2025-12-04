@@ -40,11 +40,15 @@ public class aimingCode extends LinearOpMode {
     double Ydistance;
     double TargetYDis;
     double YDisDif;
+    double robotX = 0;
+    double robotY = 0;
+    double robotHeading = 0;
+    public SparkFunOTOS.Pose2D target = new SparkFunOTOS.Pose2D(1.21,0,-135);
 
     public void runOpMode() {
         initAprilTag();
 
-        robot = new MovementLib.Robot(hardwareMap).enableArm();
+        robot = new MovementLib.Robot(hardwareMap).enableArm().enableOtos();
 
         robot.Reverse_Left();
 
@@ -79,6 +83,77 @@ public class aimingCode extends LinearOpMode {
 
         }
     }
+    private boolean hello() {
+        double aprilTagXm = -1.50; //m
+        double aprilTagYm = -1.355; //m
+        double aprilTagAngle = 60.5; //degrees
+        SparkFunOTOS.Pose2D pos = robot.otos.getPosition();
+        if(gamepad1.start) robot.otos.resetTracking();
+
+        AprilTagDetection detection = getFirstDetection();
+        if (detection != null && detection.metadata != null) {
+
+            if (detection.metadata.id == 20) {
+                double barring = detection.ftcPose.bearing;
+                double yaw = detection.ftcPose.yaw;
+                double range = detection.ftcPose.range * 0.0254;
+
+                robotHeading = -yaw + aprilTagAngle + 180;
+                double RangeHeading = robotHeading + barring;
+
+                double CameraHeading = -160.5 + RangeHeading;
+
+                double RangeHeadingRad = Math.toRadians(RangeHeading);
+
+                double CameraHeadingRad = Math.toRadians(CameraHeading);
+
+                robotX = aprilTagXm - (range) * Math.cos(RangeHeadingRad) + (0.195) * Math.cos(CameraHeadingRad) + 0.415;
+
+                if (Math.abs(robotX) > 1.8288){
+                    robotX = aprilTagXm + (range) * Math.cos(RangeHeadingRad) + (0.195) * Math.cos(CameraHeadingRad) + 0.415;
+                }
+
+                robotY = aprilTagYm - (range) * Math.sin(RangeHeadingRad) + (0.195) * Math.sin(CameraHeadingRad) - 0.255;
+
+                if (Math.abs(robotY) > 1.8288){
+                    robotY = aprilTagYm - (range) * Math.sin(RangeHeadingRad) + (0.195) * Math.sin(CameraHeadingRad) - 0.255;
+                }
+
+                pos.x = robotX;
+                pos.y = robotY;
+                pos.h = robotHeading;
+                robot.otos.setPosition(pos);
+
+                telemetry.addData("barring", barring);
+                telemetry.addData("yaw", yaw);
+                telemetry.addData("range", range);
+                telemetry.addLine();
+                telemetry.addData("robotHeading", robotHeading);
+                telemetry.addData("RangeHeading", RangeHeading);
+                telemetry.addData("CameraHeading", CameraHeading);
+                telemetry.addLine();
+                telemetry.addData("robotX", robotX);
+                telemetry.addData("robotY", robotY);
+                telemetry.addLine();
+            }
+        }
+
+        // Log the position to the telemetry
+        telemetry.addData("X coordinate", pos.x);
+        telemetry.addData("Y coordinate", pos.y);
+        telemetry.addData("Heading angle", pos.h);
+
+
+        robot.Omni_Move_To_Target(target, 0.5);
+
+
+        if (robot.Distance_To(target) < 0.5){
+            telemetry.addLine();
+            telemetry.addLine(";)");
+            return true;
+        }
+        return false;
+    }
     private void robotAiming(){
         AprilTagDetection detection = getFirstDetection();
         if (detection != null && detection.metadata != null && stage == 1) {
@@ -89,7 +164,10 @@ public class aimingCode extends LinearOpMode {
 
         switch (stage){
             case 0:
-
+                if(hello()) {
+                    stage = 1;
+                }
+                break;
             case 1:
                 robot.Omni_Move(0, 0, RobotTurn, 1);
                 if (rotateCounter >= rotateCounterLimit){
