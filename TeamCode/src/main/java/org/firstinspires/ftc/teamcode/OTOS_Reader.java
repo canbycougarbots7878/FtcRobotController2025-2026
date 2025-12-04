@@ -70,7 +70,17 @@ public class OTOS_Reader extends LinearOpMode {
                     double CameraHeadingRad = Math.toRadians(CameraHeading);
 
                     robotX = aprilTagXm - (range) * Math.cos(RangeHeadingRad) + (0.195) * Math.cos(CameraHeadingRad) + 0.415;
+
+                    if (Math.abs(robotX) > 1.8288){
+                        robotX = aprilTagXm + (range) * Math.cos(RangeHeadingRad) + (0.195) * Math.cos(CameraHeadingRad) + 0.415;
+                    }
+
                     robotY = aprilTagYm - (range) * Math.sin(RangeHeadingRad) + (0.195) * Math.sin(CameraHeadingRad) - 0.255;
+
+                    if (Math.abs(robotY) > 1.8288){
+                        robotY = aprilTagYm - (range) * Math.sin(RangeHeadingRad) + (0.195) * Math.sin(CameraHeadingRad) - 0.255;
+                    }
+
                     pos.x = robotX;
                     pos.y = robotY;
                     pos.h = robotHeading;

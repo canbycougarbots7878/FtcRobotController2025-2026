@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -30,7 +29,17 @@ public class aimingCode extends LinearOpMode {
     SparkFunOTOS myOtos;
     MovementLib.Robot robot = null;
 
-    int stage = 1;
+    int stage = 0;
+    boolean targetPoseAchieved = false;
+    double RobotTurn = 0.1;
+    int rotateCounter = 0;
+    int rotateCounterLimit = 100;
+
+    double barring;
+    double yaw;
+    double Ydistance;
+    double TargetYDis;
+    double YDisDif;
 
     public void runOpMode() {
         initAprilTag();
@@ -55,57 +64,72 @@ public class aimingCode extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-            boolean targetPoseAchieved = false;
-            double RobotTurn = 0.1;
-            int rotateCounter = 0;
-            int rotateCounterLimit = 100;
+
 
             while (opModeIsActive()) {
-                AprilTagDetection detection = getFirstDetection();
-                if (detection != null && detection.metadata != null) {
-                    if (detection.metadata.id == 20){
-                        double barring = detection.ftcPose.bearing;
-                        double yaw = detection.ftcPose.yaw;
-                        double Ydistance = detection.ftcPose.y;
-                        double TargetYDis = 70;
-                        double YDisDif = TargetYDis - Ydistance;
-                        RobotTurn = 0.1;
-
-                        if (((Math.abs(barring) > 1)) && !targetPoseAchieved) {
-                            robot.Omni_Move(0, 0, (barring)/20, 1);
-                        } else if (((Math.abs(barring) > 1)) && targetPoseAchieved) {
-                            targetPoseAchieved = false;
-                        } else if (!targetPoseAchieved) {
-                            targetPoseAchieved = true;
-                            robot.Omni_Move(0, 0, 0, 0);
-                        }else {
-                            telemetry.addLine(":)");
-                            LaunchBall();
-                        }
-
-                        telemetry.addData("Barring", barring);
-                        telemetry.addData("yaw", yaw);
-                        telemetry.addData("distance From apriltag", Ydistance);
-
-                        telemetry.update();
-                    }
-
-                }else {
-                    robot.Omni_Move(0, 0, RobotTurn, 1);
-                    if (rotateCounter >= rotateCounterLimit){
-                        RobotTurn += ((Math.abs(RobotTurn)+0.1)*(-Math.copySign(1, RobotTurn)));
-                        rotateCounter = -1;
-                        rotateCounterLimit *= 2;
-                    }
-                    rotateCounter += 1;
+                if (stage < 5){
+                    robotAiming();
                 }
-                if(stage > 0) {
+                if(stage > 5) {
                     LaunchBall();
                 }
-                robot.Omni_Move(0, 0, 0, 0);
+
             }
 
         }
+    }
+
+    private void robotAiming(){
+        AprilTagDetection detection = getFirstDetection();
+        if (detection != null && detection.metadata != null && stage == 0) {
+            stage = 1;
+        } else if (stage == 1){
+            stage = 0;
+        }
+
+        switch (stage){
+            case 0:
+                robot.Omni_Move(0, 0, RobotTurn, 1);
+                if (rotateCounter >= rotateCounterLimit){
+                    RobotTurn += ((Math.abs(RobotTurn)+0.1)*(-Math.copySign(1, RobotTurn)));
+                    rotateCounter = -1;
+                    rotateCounterLimit *= 2;
+                }
+                rotateCounter += 1;
+                break;
+            case 1:
+                if (detection.metadata.id == 20){
+                    stage = 2;
+                }
+                break;
+            case 2:
+                assert detection != null;
+                barring = detection.ftcPose.bearing;
+                yaw = detection.ftcPose.yaw;
+                Ydistance = detection.ftcPose.y;
+                TargetYDis = 70;
+                YDisDif = TargetYDis - Ydistance;
+
+                RobotTurn = 0.1;
+
+                if (((Math.abs(barring) > 1))) {
+                    stage = 3;
+                }else {
+                    stage = 4;
+                }
+                break;
+            case 3:
+                robot.Omni_Move(0, 0, (barring)/20, 1);
+                stage = 0;
+                break;
+            case 4:
+                telemetry.addLine(":)");
+                stage = 5;
+                robot.Omni_Move(0, 0, 0, 0);
+                LaunchBall();
+        }
+
+
     }
 
     private void initAprilTag() {
@@ -120,29 +144,28 @@ public class aimingCode extends LinearOpMode {
         return detections.get(0);
     }
 
-    private boolean LaunchBall() {
-        if(Arm.getCurrentPosition() > ARM_POS - 10 && stage == 1) {
-            stage = 2;
+    private void LaunchBall() {
+        if(Arm.getCurrentPosition() > ARM_POS - 10 && stage == 5) {
+            stage = 6;
         }
-        if(leftSpinner.getVelocity() > SPINNER_VELOCITY - 10 && stage == 2) {
-            stage = 3;
+        if(leftSpinner.getVelocity() > SPINNER_VELOCITY - 10 && stage == 6) {
+            stage = 7;
         }
-        if(leftSpinner.getVelocity() > SPINNER_VELOCITY - 10 && stage == 3) {
-            stage = 4;
+        if(leftSpinner.getVelocity() > SPINNER_VELOCITY - 10 && stage == 7) {
+            stage = 8;
         }
         switch(stage) {
-            case 1:
+            case 6:
                 Arm.setPower(1);
                 robot.Arm_Motor.setTargetPosition(ARM_POS); // Move arm up
                 break;
-            case 2:
+            case 7:
                 leftSpinner.setVelocity(SPINNER_VELOCITY);
                 rightSpinner.setVelocity(SPINNER_VELOCITY);
                 break;
-            case 3:
+            case 8:
                 pushServo.setPosition(0.7);
                 break;
         }
-        return true;
     }
 }
