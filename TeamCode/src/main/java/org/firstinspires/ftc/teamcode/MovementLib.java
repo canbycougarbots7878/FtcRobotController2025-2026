@@ -240,8 +240,8 @@ public class MovementLib {
         public void Omni_Move_To_Target(SparkFunOTOS.Pose2D target,double speed) {
             if(!OTOS_ENABLED) return;
             SparkFunOTOS.Pose2D pos = Get_Position();
-            double dx = 3 * (target.x - pos.x);
-            double dy = -3 * (target.y - pos.y);
+            double dx = 3 * (target.x - pos.x) / 5.0f;
+            double dy = -3 * (target.y - pos.y) / 5.0f;
             double dh = (target.h - pos.h) / 18.0;
             this.Omni_Move_Transformed(dx, dy, dh, pos.h * 0.01745329251, speed);
         }
@@ -250,8 +250,8 @@ public class MovementLib {
         }
         public double Distance_To(SparkFunOTOS.Pose2D target) {
             SparkFunOTOS.Pose2D pos = Get_Position();
-            double dx = 2 * (target.x - pos.x);
-            double dy = 2 * (target.y - pos.y);
+            double dx = (target.x - pos.x);
+            double dy = (target.y - pos.y);
             double dh = (target.h - pos.h) / 180.0;
             return Math.sqrt(dx*dx+dy*dy+dh*dh);
         }
@@ -316,12 +316,14 @@ public class MovementLib {
                 telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
             }
         }
-        public boolean LookAtAprilTag() {
-            if(!currentDetections.isEmpty()) {
-                double target = currentDetections.get(0).ftcPose.bearing;
-                double turn =  2 * target;
-                Omni_Move(0,0,turn);
-                return true;
+        public boolean LookAtAprilTag(int id) {
+            for (AprilTagDetection detection : currentDetections) {
+                if (detection.id == id) {
+                    double target = currentDetections.get(0).ftcPose.bearing;
+                    double turn =  target / 18.0;
+                    Omni_Move(0,0,turn);
+                    return true;
+                }
             }
             return false;
         }

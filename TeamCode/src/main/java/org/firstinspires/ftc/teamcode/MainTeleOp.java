@@ -124,7 +124,7 @@ public class MainTeleOp extends LinearOpMode {
         }
         if (gamepad1.y) robot.Return_Home();
         if(gamepad1.b) {
-            robot.LookAtAprilTag();
+            robot.LookAtAprilTag(20);
         }
     }
 
@@ -138,7 +138,12 @@ public class MainTeleOp extends LinearOpMode {
             setSpinnerVelocity(SPINNER_VELOCITY);
         } else if (gamepad1.left_bumper) {      // Intake
             driveSpeed = 0.5;
-            setSpinnerVelocity(-1000);
+            if(!armUp) {
+                setSpinnerVelocity(-1500);
+            }
+            else {
+                setSpinnerVelocity(-1000);
+            }
         } else {                                // Stop
             driveSpeed = 0.5;
             stopSpinners();
