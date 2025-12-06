@@ -20,7 +20,7 @@ public class DriveToPosition extends LinearOpMode {
     final double MAX_AUTO_TURN  = 0.3;   //  Clip the turn speed to this max value (adjust for your robot)
     double accuracy = 40;
     public void runOpMode() {
-        MovementLib.Robot robot = new MovementLib.Robot(hardwareMap).enableAprilTagDetection().enableIMU().enableOtos();
+        RobotLib.Robot robot = new RobotLib.Robot(hardwareMap).enableAprilTagDetection().enableIMU().enableOtos();
         robot.Reverse_Left();
         waitForStart();
         while (opModeIsActive()) {

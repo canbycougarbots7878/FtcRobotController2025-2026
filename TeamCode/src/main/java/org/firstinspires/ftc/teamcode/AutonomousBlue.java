@@ -26,13 +26,13 @@ public class AutonomousBlue extends LinearOpMode {
     private VisionPortal visionPortal;
 
     SparkFunOTOS myOtos;
-    MovementLib.Robot robot = null;
+    RobotLib.Robot robot = null;
 
 
     public void runOpMode() {
         initAprilTag();
 
-        robot = new MovementLib.Robot(hardwareMap).enableArm();
+        robot = new RobotLib.Robot(hardwareMap).enableArm();
 
         robot.Reverse_Left();
 

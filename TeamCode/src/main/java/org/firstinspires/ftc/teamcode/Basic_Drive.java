@@ -13,9 +13,9 @@ public class Basic_Drive extends LinearOpMode {
     DcMotor Front_Left = null;
     DcMotor Back_Right = null;
     DcMotor Back_Left = null;
-    MovementLib.Robot robot = null;
+    RobotLib.Robot robot = null;
     public void runOpMode() {
-        robot = new MovementLib.Robot(hardwareMap); // Initialize Wheels handler
+        robot = new RobotLib.Robot(hardwareMap); // Initialize Wheels handler
         robot.Reverse_Left(); // Make all motors spin forward
 
         waitForStart();

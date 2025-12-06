@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -18,7 +17,7 @@ import java.util.List;
 @TeleOp(name = "OTOS Reader", group = "Sensor")
 public class OTOS_Reader extends LinearOpMode {
     SparkFunOTOS myOtos;
-    MovementLib.Robot robot;
+    RobotLib.Robot robot;
 
     private AprilTagProcessor aprilTag;
 
@@ -30,7 +29,7 @@ public class OTOS_Reader extends LinearOpMode {
     public void runOpMode() {
         initAprilTag();
 
-        robot = new MovementLib.Robot(hardwareMap).enableOtos(); // Init Robot with Otos enabled
+        robot = new RobotLib.Robot(hardwareMap).enableOtos(); // Init Robot with Otos enabled
         robot.Reverse_Left(); // Make all motors spin forward
 
 

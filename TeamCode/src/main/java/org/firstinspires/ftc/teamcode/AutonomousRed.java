@@ -26,13 +26,13 @@ public class AutonomousRed extends LinearOpMode {
     private VisionPortal visionPortal;
 
     SparkFunOTOS myOtos;
-    MovementLib.Robot robot = null;
+    RobotLib.Robot robot = null;
 
 
     public void runOpMode() {
         initAprilTag();
 
-        robot = new MovementLib.Robot(hardwareMap);
+        robot = new RobotLib.Robot(hardwareMap);
 
         robot.Reverse_Left();
 

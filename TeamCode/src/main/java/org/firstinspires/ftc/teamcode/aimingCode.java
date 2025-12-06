@@ -27,7 +27,7 @@ public class aimingCode extends LinearOpMode {
     private VisionPortal visionPortal;
 
     SparkFunOTOS myOtos;
-    MovementLib.Robot robot = null;
+    RobotLib.Robot robot = null;
 
     int stage = 0;
     boolean targetPoseAchieved = false;
@@ -48,7 +48,7 @@ public class aimingCode extends LinearOpMode {
     public void runOpMode() {
         initAprilTag();
 
-        robot = new MovementLib.Robot(hardwareMap).enableArm().enableOtos();
+        robot = new RobotLib.Robot(hardwareMap).enableArm().enableOtos();
 
         robot.Reverse_Left();
 

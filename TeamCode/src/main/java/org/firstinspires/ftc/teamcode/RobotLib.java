@@ -15,7 +15,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -24,7 +23,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class MovementLib {
+public class RobotLib {
     public static class Vector2 {
         double x;
         double y;
@@ -319,7 +318,7 @@ public class MovementLib {
         public boolean LookAtAprilTag(int id) {
             for (AprilTagDetection detection : currentDetections) {
                 if (detection.id == id) {
-                    double target = currentDetections.get(0).ftcPose.bearing;
+                    double target = detection.ftcPose.bearing;
                     double turn =  target / 18.0;
                     Omni_Move(0,0,turn);
                     return true;

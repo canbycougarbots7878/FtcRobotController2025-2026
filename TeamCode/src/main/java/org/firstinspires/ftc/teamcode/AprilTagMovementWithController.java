@@ -29,7 +29,7 @@ public class AprilTagMovementWithController extends LinearOpMode {
     DcMotor Back_Left = null;
 
     SparkFunOTOS myOtos;
-    MovementLib.Robot robot = null;
+    RobotLib.Robot robot = null;
 
     // Unit conversion constants
     private static final double INCH_TO_M = 0.0254;
@@ -62,7 +62,7 @@ public class AprilTagMovementWithController extends LinearOpMode {
         myOtos.setAngularUnit(AngleUnit.DEGREES);
         myOtos.resetTracking();
 
-        robot = new MovementLib.Robot(Front_Right, Front_Left, Back_Right, Back_Left);
+        robot = new RobotLib.Robot(Front_Right, Front_Left, Back_Right, Back_Left);
         robot.Reverse_Left();
 
         myOtos.calibrateImu();

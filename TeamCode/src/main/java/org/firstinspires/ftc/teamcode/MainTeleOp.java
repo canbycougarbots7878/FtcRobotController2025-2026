@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.Reader;
 import java.util.Scanner;
 
 @TeleOp(name = "Main TeleOp", group = "Official")
@@ -16,12 +15,13 @@ public class MainTeleOp extends LinearOpMode {
 
     private DcMotorEx leftSpinner, rightSpinner;
     private Servo servo;
-    private MovementLib.Robot robot;
+    private RobotLib.Robot robot;
 
     private boolean PRM_ENABLED = false;
     private boolean armUp = false;
     private double driveSpeed = 0.5;
-    private double SPINNER_VELOCITY = 1150;
+    private double SPINNER_VELOCITY = 1190;
+    private int target_apriltag = 20;
 
     @Override
     public void runOpMode() {
@@ -39,8 +39,8 @@ public class MainTeleOp extends LinearOpMode {
                 handleServo();
                 handleArm();
                 handleHoming();
+                handleSpinners();
             }
-            handleSpinners();
             handleDrive();
             updateTelemetry();
         }
@@ -48,7 +48,7 @@ public class MainTeleOp extends LinearOpMode {
 
     // ------------------ Initialization ------------------ //
     private void initHardware() {
-        robot = new MovementLib.Robot(hardwareMap)
+        robot = new RobotLib.Robot(hardwareMap)
                 .enableArm()
                 .enableAprilTagDetection()
                 .enableOtos()
@@ -72,6 +72,12 @@ public class MainTeleOp extends LinearOpMode {
         if(gamepad1.xWasPressed()) {
             robot.Reset_IMU();
             PRM_ENABLED = !PRM_ENABLED;
+        }
+        if(gamepad1.right_bumper) {
+            target_apriltag = 24; // Red
+        }
+        if(gamepad1.left_bumper) {
+            target_apriltag = 20; // Blue
         }
     }
 
@@ -124,7 +130,7 @@ public class MainTeleOp extends LinearOpMode {
         }
         if (gamepad1.y) robot.Return_Home();
         if(gamepad1.b) {
-            robot.LookAtAprilTag(20);
+            robot.LookAtAprilTag(target_apriltag);
         }
     }
 
@@ -171,6 +177,14 @@ public class MainTeleOp extends LinearOpMode {
 
     // ------------------ Telemetry ------------------ //
     private void updateTelemetry() {
+        telemetry.addData("Target Apriltag", target_apriltag);
+
+        if(target_apriltag == 20) {
+            telemetry.addLine("Blue Team");
+        }
+        else {
+            telemetry.addLine("Red Team");
+        }
         telemetry.addData("Arm State", armUp);
         telemetry.addData("Arm Position", robot.Arm_Motor.getCurrentPosition());
         telemetry.addData("Arm Target", robot.Arm_Motor.getTargetPosition());
