@@ -23,6 +23,7 @@ public class MainTeleOp extends LinearOpMode {
     private double driveSpeed = 0.5;
     private double SPINNER_VELOCITY = 1150;
     private boolean debug_mode = false;
+    private int target_apriltag = 20;
 
     @Override
     public void runOpMode() {
@@ -74,8 +75,11 @@ public class MainTeleOp extends LinearOpMode {
             robot.Reset_IMU();
             PRM_ENABLED = !PRM_ENABLED;
         }
-        if(gamepad1.aWasPressed()) {
-            debug_mode = !debug_mode;
+        if(gamepad1.right_bumper) {
+            target_apriltag = 24; // Red
+        }
+        if(gamepad1.left_bumper) {
+            target_apriltag = 20; // Blue
         }
     }
 
@@ -100,7 +104,7 @@ public class MainTeleOp extends LinearOpMode {
 
     private void handleArm() {
         // Toggle arm position when X is pressed
-        if (gamepad1.xWasPressed()) {
+        if (gamepad1.xWasPressed() || gamepad1.xWasPressed()) {
             armUp = !armUp;
             robot.Arm_Motor.setTargetPosition(armUp ? 640 : 0);
         }
@@ -108,7 +112,7 @@ public class MainTeleOp extends LinearOpMode {
         int armPos = robot.Arm_Motor.getCurrentPosition();
 
         // Arm stopping and reset behavior
-        if (!gamepad1.x && armPos < 30) {
+        if (!(gamepad1.x || gamepad2.x) && armPos < 30) {
             robot.Set_Arm_Power(0);
             if (armPos < 0) {
                 robot.Reset_Arm_Reading();
@@ -127,20 +131,20 @@ public class MainTeleOp extends LinearOpMode {
             robot.UpdateAprilTagDetections();
         }
         if (gamepad1.y) robot.Return_Home();
-        if(gamepad1.b) {
+        if(gamepad1.b || gamepad2.b) {
             robot.LookAtAprilTag(20);
         }
     }
 
     private void handleSpinners() {
-        if (gamepad1.dpadLeftWasPressed()) SPINNER_VELOCITY -= 10;
-        if (gamepad1.dpadUpWasPressed()) SPINNER_VELOCITY += 100;
-        if (gamepad1.dpadRightWasPressed()) SPINNER_VELOCITY += 10;
-        if (gamepad1.dpadDownWasPressed()) SPINNER_VELOCITY -= 100;
-        if (gamepad1.right_bumper) {            // Launch
+        if (gamepad1.dpadLeftWasPressed() || gamepad1.dpadLeftWasPressed()) SPINNER_VELOCITY -= 10;
+        if (gamepad1.dpadUpWasPressed() || gamepad1.dpadUpWasPressed()) SPINNER_VELOCITY += 100;
+        if (gamepad1.dpadRightWasPressed() || gamepad1.dpadRightWasPressed()) SPINNER_VELOCITY += 10;
+        if (gamepad1.dpadDownWasPressed() || gamepad1.dpadDownWasPressed()) SPINNER_VELOCITY -= 100;
+        if (gamepad1.right_bumper || gamepad2.right_bumper) {            // Launch
             driveSpeed = 0.4;
             setSpinnerVelocity(SPINNER_VELOCITY);
-        } else if (gamepad1.left_bumper) {      // Intake
+        } else if (gamepad1.left_bumper || gamepad2.left_bumper) {      // Intake
             driveSpeed = 0.5;
             if(!armUp) {
                 setSpinnerVelocity(-1500);
@@ -175,19 +179,22 @@ public class MainTeleOp extends LinearOpMode {
 
     // ------------------ Telemetry ------------------ //
     private void updateTelemetry() {
-        if(debug_mode) {
-            robot.TelemetryAprilTags(telemetry);
+        telemetry.addData("Target Apriltag", target_apriltag);
+
+        if(target_apriltag == 20) {
+            telemetry.addLine("Blue Team");
         }
         else {
-            telemetry.addData("Arm State", armUp);
-            telemetry.addData("Arm Position", robot.Arm_Motor.getCurrentPosition());
-            telemetry.addData("Arm Target", robot.Arm_Motor.getTargetPosition());
-            telemetry.addData("Apriltag detections", robot.currentDetections.size());
-            telemetry.addData("Ms since last update", robot.timeSinceLastAprilTagCheck.milliseconds());
-            telemetry.addData("Drive Speed", driveSpeed);
-            telemetry.addData("Spinner Current Velocity", getSpinnerVelocity());
-            telemetry.addData("Spinner Target Velocity", SPINNER_VELOCITY);
+            telemetry.addLine("Red Team");
         }
+        telemetry.addData("Arm State", armUp);
+        telemetry.addData("Arm Position", robot.Arm_Motor.getCurrentPosition());
+        telemetry.addData("Arm Target", robot.Arm_Motor.getTargetPosition());
+        telemetry.addData("Apriltag detections", robot.currentDetections.size());
+        telemetry.addData("Ms since last update", robot.timeSinceLastAprilTagCheck.milliseconds());
+        telemetry.addData("Drive Speed", driveSpeed);
+        telemetry.addData("Spinner Current Velocity", getSpinnerVelocity());
+        telemetry.addData("Spinner Target Velocity", SPINNER_VELOCITY);
         telemetry.update();
     }
 
