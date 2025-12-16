@@ -104,9 +104,9 @@ public class MainTeleOp extends LinearOpMode {
 
     private void handleArm() {
         // Toggle arm position when X is pressed
-        if (gamepad1.xWasPressed() || gamepad1.xWasPressed()) {
+        if (gamepad1.xWasPressed() || gamepad2.xWasPressed()) {
             armUp = !armUp;
-            robot.Arm_Motor.setTargetPosition(armUp ? 640 : 0);
+            robot.Arm_Motor.setTargetPosition(armUp ? (gamepad1.left_bumper || gamepad2.left_bumper ? 600 : 640) : 0);
         }
 
         int armPos = robot.Arm_Motor.getCurrentPosition();
@@ -114,7 +114,7 @@ public class MainTeleOp extends LinearOpMode {
         // Arm stopping and reset behavior
         if (!(gamepad1.x || gamepad2.x) && armPos < 30) {
             robot.Set_Arm_Power(0);
-            if (armPos < 0) {
+            if (armPos < 10) {
                 robot.Reset_Arm_Reading();
             }
         } else {
@@ -137,17 +137,17 @@ public class MainTeleOp extends LinearOpMode {
     }
 
     private void handleSpinners() {
-        if (gamepad1.dpadLeftWasPressed() || gamepad1.dpadLeftWasPressed()) SPINNER_VELOCITY -= 10;
-        if (gamepad1.dpadUpWasPressed() || gamepad1.dpadUpWasPressed()) SPINNER_VELOCITY += 100;
-        if (gamepad1.dpadRightWasPressed() || gamepad1.dpadRightWasPressed()) SPINNER_VELOCITY += 10;
-        if (gamepad1.dpadDownWasPressed() || gamepad1.dpadDownWasPressed()) SPINNER_VELOCITY -= 100;
+        if (gamepad1.dpadLeftWasPressed() || gamepad2.dpadLeftWasPressed()) SPINNER_VELOCITY -= 10;
+        if (gamepad1.dpadUpWasPressed() || gamepad2.dpadUpWasPressed()) SPINNER_VELOCITY += 100;
+        if (gamepad1.dpadRightWasPressed() || gamepad2.dpadRightWasPressed()) SPINNER_VELOCITY += 10;
+        if (gamepad1.dpadDownWasPressed() || gamepad2.dpadDownWasPressed()) SPINNER_VELOCITY -= 100;
         if (gamepad1.right_bumper || gamepad2.right_bumper) {            // Launch
             driveSpeed = 0.4;
             setSpinnerVelocity(SPINNER_VELOCITY);
         } else if (gamepad1.left_bumper || gamepad2.left_bumper) {      // Intake
             driveSpeed = 0.5;
             if(!armUp) {
-                setSpinnerVelocity(-1500);
+                setSpinnerVelocity(-1100);
             }
             else {
                 setSpinnerVelocity(-1000);

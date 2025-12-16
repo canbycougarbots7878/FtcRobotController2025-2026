@@ -318,7 +318,7 @@ public class RobotLib {
         public boolean LookAtAprilTag(int id) {
             for (AprilTagDetection detection : currentDetections) {
                 if (detection.id == id) {
-                    double target = detection.ftcPose.bearing;
+                    double target = detection.ftcPose.yaw;
                     double turn =  target / 18.0;
                     Omni_Move(0,0,turn);
                     return true;
