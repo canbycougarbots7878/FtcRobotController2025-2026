@@ -111,8 +111,6 @@ public class aimingCode extends LinearOpMode {
                     robotX = aprilTagXm + (range) * DegTrig.cosDeg(RangeHeading) + (0.195) * DegTrig.cosDeg(CameraHeading) + 0.415;
                 }
 
-                double mathTest ;
-
                 robotY = aprilTagYm - (range) * DegTrig.sinDeg(RangeHeading) + (0.195) * DegTrig.sinDeg(CameraHeading) - 0.255;
 
                 if (Math.abs(robotY) > unitConversion.inTom(72)){
