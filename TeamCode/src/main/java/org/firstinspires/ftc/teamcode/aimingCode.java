@@ -11,6 +11,8 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.teamcode.Math.DegTrig;
+import org.firstinspires.ftc.teamcode.Math.unitConversion;
 
 import java.util.List;
 
@@ -96,27 +98,25 @@ public class aimingCode extends LinearOpMode {
             if (detection.metadata.id == 20) {
                 double barring = detection.ftcPose.bearing;
                 double yaw = detection.ftcPose.yaw;
-                double range = detection.ftcPose.range * 0.0254;
+                double range = unitConversion.inTom(detection.ftcPose.range);
 
                 robotHeading = -yaw + aprilTagAngle + 180;
                 double RangeHeading = robotHeading + barring;
 
                 double CameraHeading = -160.5 + RangeHeading;
 
-                double RangeHeadingRad = Math.toRadians(RangeHeading);
+                robotX = aprilTagXm - (range) * DegTrig.cosDeg(RangeHeading) + (0.195) * DegTrig.cosDeg(CameraHeading) + 0.415;
 
-                double CameraHeadingRad = Math.toRadians(CameraHeading);
-
-                robotX = aprilTagXm - (range) * Math.cos(RangeHeadingRad) + (0.195) * Math.cos(CameraHeadingRad) + 0.415;
-
-                if (Math.abs(robotX) > 1.8288){
-                    robotX = aprilTagXm + (range) * Math.cos(RangeHeadingRad) + (0.195) * Math.cos(CameraHeadingRad) + 0.415;
+                if (Math.abs(robotX) > unitConversion.inTom(72)){
+                    robotX = aprilTagXm + (range) * DegTrig.cosDeg(RangeHeading) + (0.195) * DegTrig.cosDeg(CameraHeading) + 0.415;
                 }
 
-                robotY = aprilTagYm - (range) * Math.sin(RangeHeadingRad) + (0.195) * Math.sin(CameraHeadingRad) - 0.255;
+                double mathTest ;
 
-                if (Math.abs(robotY) > 1.8288){
-                    robotY = aprilTagYm - (range) * Math.sin(RangeHeadingRad) + (0.195) * Math.sin(CameraHeadingRad) - 0.255;
+                robotY = aprilTagYm - (range) * DegTrig.sinDeg(RangeHeading) + (0.195) * DegTrig.sinDeg(CameraHeading) - 0.255;
+
+                if (Math.abs(robotY) > unitConversion.inTom(72)){
+                    robotY = aprilTagYm + (range) * DegTrig.sinDeg(RangeHeading) + (0.195) * DegTrig.sinDeg(CameraHeading) - 0.255;
                 }
 
                 pos.x = robotX;
