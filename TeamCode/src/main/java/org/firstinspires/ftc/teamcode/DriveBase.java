@@ -56,6 +56,12 @@ public class DriveBase {
     public void stop() {
         setWheelPowers(0,0,0,0);
     }
+    public void turn(double speed) {
+        double fl = front_left.getPower() - speed;
+        double fr = front_right.getPower() + speed;
+        double bl = front_left.getPower() - speed;
+        double br = front_left.getPower() + speed;
+    }
     public void omniMove(double Forward, double Right, double Rotate) {
         // THIS HAS BEEN FINICKY
         double fl = Forward + Right - Rotate;
@@ -111,13 +117,14 @@ public class DriveBase {
      * @return whether it sees the apriltag, will do nothing if it can't see it
      */
     public boolean lookAtApriltag(int id) {
-        AprilTagDetection apriltag = aprilTagDetector.findByID(id);
-        if(apriltag == null) return false; // Return false to signal that the apriltag wasn't detected
-
-        double target = apriltag.ftcPose.yaw;
-        double turn =  target / 18.0;
-        omniMove(0,0,turn);
-
-        return true;
+        for (AprilTagDetection detection : aprilTagDetector.current_detections) {
+            if (detection.id == id) {
+                double target = detection.ftcPose.bearing;
+                double turn =  (target - getDeltaHeading() / 20.0) / 18.0;
+                omniMove(0,0,turn);
+                return true;
+            }
+        }
+        return false;
     }
 }
