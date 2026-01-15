@@ -16,7 +16,7 @@ public class Arm {
         this.Arm_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.Arm_Motor.setTargetPosition(0);
         this.Arm_Motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        boolean armUp = false;
+
     }
 
     /**
