@@ -33,6 +33,30 @@ public class Shooter {
         }
     }
 
+    public void inputServoController(Gamepad gamepad, double SPINNER_VELOCITY){
+
+
+        // Servo control (A = close, default = open)
+        if(getSpinnerVelocity() < SPINNER_VELOCITY-20) {
+            servo.setPower(-1);
+        }
+        else {
+            servo.setPower(gamepad.a ? -1 : 0);
+        }
+    }
+
+    public void inputServoAuto(double SPINNER_VELOCITY){
+
+
+        // Servo control (A = close, default = open)
+        if(getSpinnerVelocity() < SPINNER_VELOCITY-20) {
+            servo.setPower(-1);
+        }
+        else {
+            servo.setPower(0);
+        }
+    }
+
     public void LaunchServoAuto(){
         double SPINNER_VELOCITY = 1150;
 
@@ -56,9 +80,11 @@ public class Shooter {
         } else if (gamepad.left_bumper) {      // Intake
             if(!armUp) {
                 setSpinnerVelocity(-1100);
+                inputServoAuto(-1100);
             }
             else {
                 setSpinnerVelocity(-1000);
+                inputServoAuto(-1000);
             }
         } else {                                // Stop
             stopSpinners();
