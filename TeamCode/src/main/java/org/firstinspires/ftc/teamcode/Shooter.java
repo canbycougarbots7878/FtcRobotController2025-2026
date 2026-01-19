@@ -92,6 +92,13 @@ public class Shooter {
 
     }
 
+    /**
+     *
+     * @param armUp for inputs ( up makes the velocity slower than down).
+     * @param launch if true and input is false launch the ball.
+     * @param input if true and launch is false intake the ball.
+     *              if both are the same spinners stop.
+     */
     public void SpinnerAuto(boolean armUp, boolean launch, boolean input){
         double SPINNER_VELOCITY = 1150;
         if (launch && !input) {            // Launch
@@ -100,9 +107,11 @@ public class Shooter {
         } else if (!launch && input) {      // Intake
             if(!armUp) {
                 setSpinnerVelocity(-1100);
+                inputServoAuto(-1100);
             }
             else {
                 setSpinnerVelocity(-1000);
+                inputServoAuto(-1000);
             }
         } else {                                // Stop
             stopSpinners();
