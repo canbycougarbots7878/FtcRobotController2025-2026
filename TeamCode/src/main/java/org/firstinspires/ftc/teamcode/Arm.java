@@ -21,7 +21,7 @@ public class Arm {
 
     /**
      *
-     * @param gamepad
+     * @param gamepad gamepad num
      * @param armUp  add "if (gamepad.xWasPressed() || gamepad.xWasPressed()) {
      *             armUp = !armUp;
      *               }" before this line of code (and set it at the start to false)
