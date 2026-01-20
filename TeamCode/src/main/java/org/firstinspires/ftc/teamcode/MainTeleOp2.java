@@ -33,6 +33,9 @@ public class MainTeleOp2 extends LinearOpMode {
                 // Main operation
                 handleDrive();
                 handleHoming();
+                if (gamepad1.xWasPressed() || gamepad2.xWasPressed()) {
+                    arm_up = !arm_up;
+                }
                 handleShooter();
                 handleArm();
             }
@@ -74,11 +77,11 @@ public class MainTeleOp2 extends LinearOpMode {
     }
 
     private void handleShooter() {
-        // Simon
+        shooter.SpinnerController(gamepad2, arm_up);
     }
 
     private void handleArm() {
-        // Simon
+        arm.ArmController(gamepad2, arm_up);
     }
 
     private void handleHoming() {

@@ -27,7 +27,7 @@ public class Arm {
      *               }" before this line of code (and set it at the start to false)
      */
 
-    public void ArmMoveController(Gamepad gamepad, boolean armUp){
+    public void ArmController(Gamepad gamepad, boolean armUp){
         // Toggle arm position when X is pressed
         if (gamepad.xWasPressed() || gamepad.xWasPressed()) {
             this.Arm_Motor.setTargetPosition(armUp ? (gamepad.left_bumper ? 600 : 640) : 0);

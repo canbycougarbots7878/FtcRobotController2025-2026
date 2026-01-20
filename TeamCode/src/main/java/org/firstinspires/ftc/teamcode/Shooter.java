@@ -77,14 +77,15 @@ public class Shooter {
         if (gamepad.dpadDownWasPressed()) SPINNER_VELOCITY -= 100;
         if (gamepad.right_bumper) {            // Launch
             setSpinnerVelocity(SPINNER_VELOCITY);
+            LaunchServoController(gamepad);
         } else if (gamepad.left_bumper) {      // Intake
             if(!armUp) {
                 setSpinnerVelocity(-1100);
-                inputServoAuto(-1100);
+                inputServoController(gamepad,-1100);
             }
             else {
                 setSpinnerVelocity(-1000);
-                inputServoAuto(-1000);
+                inputServoController(gamepad,-1000);
             }
         } else {                                // Stop
             stopSpinners();
