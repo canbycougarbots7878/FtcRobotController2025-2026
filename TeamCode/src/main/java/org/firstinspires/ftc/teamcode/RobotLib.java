@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -315,11 +316,11 @@ public class RobotLib {
                 telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
             }
         }
-        public boolean LookAtAprilTag(int id) {
+        public boolean LookAtAprilTag(int id, double offset) {
             for (AprilTagDetection detection : currentDetections) {
                 if (detection.id == id) {
-                    double target = detection.ftcPose.yaw;
-                    double turn =  target / 18.0;
+                    double target = detection.ftcPose.bearing + offset;
+                    double turn =  (target - imu.getRobotAngularVelocity(AngleUnit.DEGREES).zRotationRate / 20.0) / 18.0;;
                     Omni_Move(0,0,turn);
                     return true;
                 }

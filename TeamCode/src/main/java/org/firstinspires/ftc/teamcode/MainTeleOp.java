@@ -132,7 +132,7 @@ public class MainTeleOp extends LinearOpMode {
         }
         if (gamepad1.y) robot.Return_Home();
         if(gamepad1.b || gamepad2.b) {
-            robot.LookAtAprilTag(20);
+            robot.LookAtAprilTag(target_apriltag,10);
         }
     }
 

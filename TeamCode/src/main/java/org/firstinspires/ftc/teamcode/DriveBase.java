@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.cos;
+import static java.lang.Math.min;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 
@@ -12,6 +13,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
@@ -34,6 +36,7 @@ public class DriveBase {
 
     public SparkFunOTOS otos;
 
+    // Constructor
     DriveBase(HardwareMap hardwareMap)  {
         this.front_right = hardwareMap.get(DcMotor.class, "frontright");
         this.front_left = hardwareMap.get(DcMotor.class, "frontleft");
@@ -61,6 +64,8 @@ public class DriveBase {
 
         this.hardwareMap = hardwareMap;
     }
+
+    // Raw wheel control
     public void setWheelPowers(double Front_Right_Power, double Front_Left_Power, double Back_Right_Power, double Back_Left_Power) {
         this.front_right.setPower(Front_Right_Power);
         this.front_left.setPower(Front_Left_Power);
@@ -75,6 +80,7 @@ public class DriveBase {
         double fr = front_right.getPower() + speed;
         double bl = front_left.getPower() - speed;
         double br = front_left.getPower() + speed;
+        setWheelPowers(fr,fl,br,bl);
     }
     public void omniMove(double Forward, double Right, double Rotate) {
         // THIS HAS BEEN FINICKY
@@ -101,6 +107,18 @@ public class DriveBase {
         this.omniMove(forward,strafe,turn);
     }
 
+    // Positional information
+    private double angularDirection(double current_angle, double target_angle) {
+        double option_1 = target_angle - current_angle;
+        double option_2 = option_1 - 360;
+
+        if (abs(option_1) < abs(option_2)) {
+            return ((option_1 + 180) % 360) - 180;
+        } else {
+            return ((option_2 + 180) % 360) - 180;
+        }
+    }
+
     public double getHeading() {
         YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
         return angles.getYaw();
@@ -109,23 +127,30 @@ public class DriveBase {
         AngularVelocity angles = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
         return angles.zRotationRate;
     }
+    public boolean isFacing(double target_yaw) {
+        double current_heading = getHeading();
+        return abs(angularDirection(current_heading, target_yaw)) < 0.1 && abs(getDeltaHeading()) < 10;
+    }
+    SparkFunOTOS.Pose2D getPosition() {
+        return otos.getPosition();
+    }
+    SparkFunOTOS.Pose2D getVelocity() {
+        return otos.getVelocity();
+    }
+
+    // Reset sensors
     public void resetHeading() {
         this.imu.resetYaw();
     }
-    private boolean anglesWrap(double angle1, double angle2) {
-        double far = abs((angle1 + 360) - angle2);
-        double close = abs(angle1 - angle2);
-        return far < close;
+    void resetOtos() {
+        otos.resetTracking();
     }
+
     public void pointTowards(double target_yaw) {
         YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
         double current_yaw = angles.getYaw();
-        double power = (anglesWrap(current_yaw, target_yaw) ? -1 : 1) * (target_yaw - (current_yaw + getDeltaHeading() / 20.0)) / 20.0;
+        double power = angularDirection(current_yaw+getDeltaHeading()/20.0,target_yaw) / 20.0;
         this.omniMove(0.0,0.0,power);
-    }
-    public boolean isFacing(double target_yaw) {
-        double current_heading = getHeading();
-        return (anglesWrap(current_heading, target_yaw) ? -1 : 1) * abs(target_yaw - current_heading) < 0.1 && abs(getDeltaHeading()) < 10;
     }
     public void globalOmniMove(double Forward, double Right, double Rotate) {
         double heading = getHeading();
@@ -135,7 +160,12 @@ public class DriveBase {
         double right_rotated = Forward * s - Right * c;
         omniMove(forward_rotated,right_rotated,Rotate);
     }
-
+    public void globalOmniMoveController(Gamepad gamepad) {
+        double forward = - gamepad.left_stick_y;
+        double strafe = gamepad.left_stick_x;
+        double turn = - gamepad.right_stick_x;
+        this.globalOmniMove(forward,strafe,turn);
+    }
     public boolean searchForAprilTag(int id, double search_speed) {
         if (aprilTagDetector.last_check.milliseconds() > 100) aprilTagDetector.detect();
         if (aprilTagDetector.findByID(id) != null) {
@@ -161,22 +191,13 @@ public class DriveBase {
         }
         return false;
     }
-
-
-
-    SparkFunOTOS.Pose2D getPosition() {
-        return otos.getPosition();
-    }
-    SparkFunOTOS.Pose2D getVelocity() {
-        return otos.getVelocity();
-    }
     void moveToPosition(SparkFunOTOS.Pose2D target_pos) {
         SparkFunOTOS.Pose2D current_pos = getPosition();
         double x_diff = target_pos.x - current_pos.x;
         double y_diff = target_pos.y - current_pos.y;
         double h_diff = target_pos.h - current_pos.h;
 
-        globalOmniMove(x_diff/10.0,y_diff/10.0,h_diff/10.0);
+        globalOmniMove(y_diff/10.0,x_diff/10.0,h_diff/10.0);
     }
     double distanceTo(SparkFunOTOS.Pose2D target_pos, boolean check_heading) {
         SparkFunOTOS.Pose2D current_pos = getPosition();
@@ -186,7 +207,10 @@ public class DriveBase {
 
         return sqrt(dx*dx+dy*dy+dh*dh);
     }
-    void resetOtos() {
-        otos.resetTracking();
+    void telemetryPosition(Telemetry telemetry) {
+        SparkFunOTOS.Pose2D pose = getPosition();
+        telemetry.addData("X", pose.x);
+        telemetry.addData("Y", pose.y);
+        telemetry.addData("Heading", pose.h);
     }
 }
