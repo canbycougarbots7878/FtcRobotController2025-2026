@@ -82,6 +82,7 @@ public class AprilTag_Reader extends LinearOpMode {
                 driveBase.aprilTagDetector.detect();
             }
             driveBase.omniMoveController(gamepad1);
+            driveBase.telemetryPosition(telemetry);
             driveBase.aprilTagDetector.telemetryAprilTags(telemetry);
             telemetry.update();
         }
