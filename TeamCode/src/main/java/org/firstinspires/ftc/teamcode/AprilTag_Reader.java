@@ -69,86 +69,21 @@ import java.util.List;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
 
-@Disabled
 @TeleOp(name = "April Tag Reader", group = "Sensor")
 public class AprilTag_Reader extends LinearOpMode {
-    private AprilTagProcessor aprilTag;
-    private VisionPortal visionPortal;
-
+    private DriveBase driveBase;
 
     @Override
     public void runOpMode() {
-        initAprilTag();
-
-
-        // Wait for the DS start button to be touched.
-        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch START to start OpMode");
-        telemetry.update();
+        driveBase = new DriveBase(hardwareMap);
         waitForStart();
-
-
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
-
-
-                telemetryAprilTag();
-
-
-                telemetry.update();
-
-
-                // Share the CPU.
-                sleep(20);
+        while (opModeIsActive()) {
+            if(driveBase.aprilTagDetector.last_check.milliseconds() > 10) {
+                driveBase.aprilTagDetector.detect();
             }
+            driveBase.omniMoveController(gamepad1);
+            driveBase.aprilTagDetector.telemetryAprilTags(telemetry);
+            telemetry.update();
         }
-
-
-        // Save more CPU resources when camera is no longer needed.
-        visionPortal.close();
-
-
-    }   // end method runOpMode()
-
-
-    private void initAprilTag() {
-        aprilTag = AprilTagProcessor.easyCreateWithDefaults();
-
-
-        visionPortal = VisionPortal.easyCreateWithDefaults(
-                hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTag);
-    }   // end method initAprilTag()
-
-
-    @SuppressLint("DefaultLocale")
-    private void telemetryAprilTag() {
-
-
-        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        telemetry.addData("# AprilTags Detected", currentDetections.size());
-
-
-        // Step through the list of detections and display info for each one.
-        for (AprilTagDetection detection : currentDetections) {
-            if (detection.metadata != null) {
-                telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
-                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
-            } else {
-                telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
-                telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
-            }
-        }   // end for() loop
-
-
-        // Add "key" information to telemetry
-        telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
-        telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
-        telemetry.addLine("RBE = Range, Bearing & Elevation");
-
-
-    }   // end method telemetryAprilTag()
-
-
+    }
 }   // end class
