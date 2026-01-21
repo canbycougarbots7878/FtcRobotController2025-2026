@@ -24,6 +24,9 @@ public class MainTeleOp2 extends LinearOpMode {
     @Override
     public void runOpMode() {
         initHardware();
+
+        waitForStart();
+
         while (opModeIsActive()) {
             if(gamepad1.back) {
                 // Config mode
