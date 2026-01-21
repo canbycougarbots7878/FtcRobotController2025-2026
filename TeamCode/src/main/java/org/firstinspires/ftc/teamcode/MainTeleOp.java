@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.CRServo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,7 +15,7 @@ import java.util.Scanner;
 public class MainTeleOp extends LinearOpMode {
 
     private DcMotorEx leftSpinner, rightSpinner;
-    private Servo servo;
+    private CRServo servo;
     private RobotLib.Robot robot;
 
     private boolean PRM_ENABLED = false;
@@ -59,7 +59,7 @@ public class MainTeleOp extends LinearOpMode {
         robot.Reverse_Left();
         //robot.Arm_Motor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        servo = hardwareMap.get(Servo.class, "servo");
+        servo = hardwareMap.get(CRServo.class, "servo");
 
         leftSpinner = hardwareMap.get(DcMotorEx.class, "leftspinner");
         rightSpinner = hardwareMap.get(DcMotorEx.class, "rightspinner");
@@ -95,10 +95,15 @@ public class MainTeleOp extends LinearOpMode {
     private void handleServo() {
         // Servo control (A = close, default = open)
         if(getSpinnerVelocity() > SPINNER_VELOCITY-20) {
-            servo.setPosition(0.8);
+            servo.setPower(1);
         }
         else {
-            servo.setPosition(gamepad1.a ? 0.8 : 1.0);
+            if(gamepad1.a) {
+                servo.setPower(1);
+            }
+            else if(gamepad1.y) {
+                servo.setPower(-1);
+            }
         }
     }
 
@@ -130,7 +135,7 @@ public class MainTeleOp extends LinearOpMode {
         if (robot.timeSinceLastAprilTagCheck.milliseconds() > 10) {
             robot.UpdateAprilTagDetections();
         }
-        if (gamepad1.y) robot.Return_Home();
+        //if (gamepad1.y) robot.Return_Home();
         if(gamepad1.b || gamepad2.b) {
             robot.LookAtAprilTag(target_apriltag,10);
         }
