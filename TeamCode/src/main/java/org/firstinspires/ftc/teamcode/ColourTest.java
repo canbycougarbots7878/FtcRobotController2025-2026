@@ -11,14 +11,24 @@ public class ColourTest extends LinearOpMode {
     @Override
     public void runOpMode() {
         LED = new ServoLED(hardwareMap, "LED");
+        double colorNum = 0.2;
 
         waitForStart();
-        LED.setColor(LED.GREEN);
-        sleep(3000);
 
         while (opModeIsActive()){
-            LED.setColor(0.3);
 
+
+            if (colorNum <= 0.75){
+                LED.setColor(colorNum);
+
+                telemetry.addData("colour value", colorNum);
+                telemetry.update();
+
+                colorNum += 0.0001;
+
+                sleep(10);
+
+            }
         }
     }
 

@@ -34,4 +34,5 @@ android {
 dependencies {
     implementation project(':FtcRobotController')
     implementation "com.bylazar:docs:1.0.5"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
 }

@@ -12,8 +12,12 @@ public class Shooter {
     private DcMotorEx leftSpinner, rightSpinner;
     private CRServo servo;
 
+    ServoLED led;
+
     Shooter(HardwareMap hardwareMap){
         servo = hardwareMap.get(CRServo.class, "servo");
+
+        led = new ServoLED(hardwareMap, "LED");
 
         leftSpinner = hardwareMap.get(DcMotorEx.class, "leftspinner");
         rightSpinner = hardwareMap.get(DcMotorEx.class, "rightspinner");
@@ -22,13 +26,16 @@ public class Shooter {
     }
 
     public void LaunchServoController(Gamepad gamepad){
+
         double SPINNER_VELOCITY = 1150;
 
         // Servo control (A = close, default = open)
         if(getSpinnerVelocity() > SPINNER_VELOCITY-20) {
+            led.setColor(led.GREEN);
             servo.setPower(1);
         }
         else {
+            led.setColor(led.RED);
             servo.setPower(gamepad.a ? 1 : 0);
         }
     }
@@ -38,9 +45,11 @@ public class Shooter {
 
         // Servo control (A = close, default = open)
         if(getSpinnerVelocity() < SPINNER_VELOCITY-20) {
+            led.setColor(led.GREEN);
             servo.setPower(-1);
         }
         else {
+            led.setColor(led.RED);
             servo.setPower(gamepad.a ? -1 : 0);
         }
     }
@@ -50,9 +59,11 @@ public class Shooter {
 
         // Servo control (A = close, default = open)
         if(getSpinnerVelocity() < SPINNER_VELOCITY-20) {
+            led.setColor(led.GREEN);
             servo.setPower(-1);
         }
         else {
+            led.setColor(led.RED);
             servo.setPower(0);
         }
     }
@@ -62,9 +73,11 @@ public class Shooter {
 
         // Servo control (A = close, default = open)
         if(getSpinnerVelocity() > SPINNER_VELOCITY-20) {
+            led.setColor(led.GREEN);
             servo.setPower(1);
         }
         else {
+            led.setColor(led.RED);
             servo.setPower(0);
         }
     }

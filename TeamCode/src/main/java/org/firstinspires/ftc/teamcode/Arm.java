@@ -10,12 +10,17 @@ public class Arm {
 
     public DcMotor Arm_Motor;
 
+    ServoLED led;
+
+
     Arm(HardwareMap hardwareMap){
         // Arm initialization
         this.Arm_Motor = hardwareMap.get(DcMotor.class, "arm");
         this.Arm_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.Arm_Motor.setTargetPosition(0);
         this.Arm_Motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        led = new ServoLED(hardwareMap, "LED");
 
     }
 
@@ -31,6 +36,12 @@ public class Arm {
         // Toggle arm position when X is pressed
         if (gamepad.xWasPressed() || gamepad.xWasPressed()) {
             this.Arm_Motor.setTargetPosition(armUp ? (gamepad.left_bumper ? 600 : 640) : 0);
+
+            if (armUp) {
+                led.setColor(led.YELLOW);
+            }else {
+                led.setColor(led.ORANGE);
+            }
         }
 
         int armPos = this.Arm_Motor.getCurrentPosition();

@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class ServoLED {
     private Servo pwm_object;
 
-    final double RED = 0.277;
+    final double RED = 0.3;
     final double ORANGE = 0.333;
     final double YELLOW = 0.388;
     final double SAGE = 0.444;
@@ -16,6 +16,10 @@ public class ServoLED {
         pwm_object = hardwareMap.get(Servo.class, name);
     }
 
+    /**
+     *
+     * @param color [0,1]
+     */
     public void setColor(double color) {
         pwm_object.setPosition(color);
     }
