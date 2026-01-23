@@ -1,9 +1,7 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Libraries;
 
 import static java.lang.Math.abs;
-import static java.lang.Math.cos;
 import static java.lang.Math.min;
-import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
@@ -37,7 +35,7 @@ public class DriveBase {
     public SparkFunOTOS otos;
 
     // Constructor
-    DriveBase(HardwareMap hardwareMap)  {
+    public DriveBase(HardwareMap hardwareMap)  {
         this.front_right = hardwareMap.get(DcMotor.class, "frontright");
         this.front_left = hardwareMap.get(DcMotor.class, "frontleft");
         this.back_right = hardwareMap.get(DcMotor.class, "backright");
@@ -142,7 +140,7 @@ public class DriveBase {
     public void resetHeading() {
         this.imu.resetYaw();
     }
-    void resetOtos() {
+    public void resetOtos() {
         otos.resetTracking();
     }
 
@@ -191,7 +189,7 @@ public class DriveBase {
         }
         return false;
     }
-    void moveToPosition(SparkFunOTOS.Pose2D target_pos) {
+    public void moveToPosition(SparkFunOTOS.Pose2D target_pos) {
         SparkFunOTOS.Pose2D current_pos = getPosition();
         double x_diff = target_pos.x - current_pos.x;
         double y_diff = target_pos.y - current_pos.y;

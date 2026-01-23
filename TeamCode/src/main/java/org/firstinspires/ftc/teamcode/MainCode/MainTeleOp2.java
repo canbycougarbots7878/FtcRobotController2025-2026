@@ -1,16 +1,12 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.MainCode;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.Reader;
-import java.util.Scanner;
+import org.firstinspires.ftc.teamcode.Libraries.Arm;
+import org.firstinspires.ftc.teamcode.Libraries.DriveBase;
+import org.firstinspires.ftc.teamcode.Libraries.Shooter;
 
 @TeleOp(name = "Main TeleOp 2", group = "Official")
 public class MainTeleOp2 extends LinearOpMode {

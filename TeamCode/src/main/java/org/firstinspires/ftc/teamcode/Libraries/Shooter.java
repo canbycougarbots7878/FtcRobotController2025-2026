@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Libraries;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -14,7 +14,7 @@ public class Shooter {
 
     ServoLED led;
 
-    Shooter(HardwareMap hardwareMap){
+    public Shooter(HardwareMap hardwareMap){
         servo = hardwareMap.get(CRServo.class, "servo");
 
         led = new ServoLED(hardwareMap, "LED");
@@ -31,11 +31,9 @@ public class Shooter {
 
         // Servo control (A = close, default = open)
         if(getSpinnerVelocity() > SPINNER_VELOCITY-20) {
-            led.setColor(led.GREEN);
             servo.setPower(1);
         }
         else {
-            led.setColor(led.RED);
             servo.setPower(gamepad.a ? 1 : 0);
         }
     }
@@ -45,11 +43,9 @@ public class Shooter {
 
         // Servo control (A = close, default = open)
         if(getSpinnerVelocity() < SPINNER_VELOCITY-20) {
-            led.setColor(led.GREEN);
             servo.setPower(-1);
         }
         else {
-            led.setColor(led.RED);
             servo.setPower(gamepad.a ? -1 : 0);
         }
     }
@@ -59,11 +55,9 @@ public class Shooter {
 
         // Servo control (A = close, default = open)
         if(getSpinnerVelocity() < SPINNER_VELOCITY-20) {
-            led.setColor(led.GREEN);
             servo.setPower(-1);
         }
         else {
-            led.setColor(led.RED);
             servo.setPower(0);
         }
     }
@@ -73,11 +67,9 @@ public class Shooter {
 
         // Servo control (A = close, default = open)
         if(getSpinnerVelocity() > SPINNER_VELOCITY-20) {
-            led.setColor(led.GREEN);
             servo.setPower(1);
         }
         else {
-            led.setColor(led.RED);
             servo.setPower(0);
         }
     }

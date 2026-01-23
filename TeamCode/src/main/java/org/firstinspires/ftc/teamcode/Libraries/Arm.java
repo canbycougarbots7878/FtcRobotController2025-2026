@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Libraries;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -13,7 +13,7 @@ public class Arm {
     ServoLED led;
 
 
-    Arm(HardwareMap hardwareMap){
+    public Arm(HardwareMap hardwareMap){
         // Arm initialization
         this.Arm_Motor = hardwareMap.get(DcMotor.class, "arm");
         this.Arm_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
