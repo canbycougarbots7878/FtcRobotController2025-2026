@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.MainCode;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -8,14 +8,15 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.Libraries.RobotLib;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-@Autonomous(name = "Autonomous Blue", group = "Robot")
-public class AutonomousBlue extends LinearOpMode {
+@Autonomous(name="Autonomous Red", group="Robot")
+public class AutonomousRed extends LinearOpMode {
     private final double SPINNER_VELOCITY = 1150;
 
     public DcMotorEx Arm = null;
@@ -32,7 +33,7 @@ public class AutonomousBlue extends LinearOpMode {
     public void runOpMode() {
         initAprilTag();
 
-        robot = new RobotLib.Robot(hardwareMap).enableArm();
+        robot = new RobotLib.Robot(hardwareMap);
 
         robot.Reverse_Left();
 
@@ -56,13 +57,19 @@ public class AutonomousBlue extends LinearOpMode {
             int rotateCounter = 0;
             int rotateCounterLimit = 100;
 
+            robot.Omni_Move( 0.5, 0, 0, 1.0);
+
+            sleep(1500);
+
+            robot.Omni_Move( 0, 0, 0, 0.0);
+
             boolean targetPoseAchieved = false;
             double RobotTurn = 0.1;
 
             while (opModeIsActive()) {
                 AprilTagDetection detection = getFirstDetection();
                 if (detection != null && detection.metadata != null) {
-                    if (detection.metadata.id == 20) {
+                    if (detection.metadata.id == 24){
                         double barring = detection.ftcPose.bearing;
                         double yaw = detection.ftcPose.yaw;
                         double Ydistance = detection.ftcPose.y;
@@ -70,14 +77,14 @@ public class AutonomousBlue extends LinearOpMode {
                         double YDisDif = TargetYDis - Ydistance;
                         RobotTurn = 0.1;
 
-                        if (((Math.abs(barring) > 1)) && !targetPoseAchieved) {
-                            robot.Omni_Move(0, 0, (barring) / 18, 1);
-                        } else if (((Math.abs(barring) > 1)) && targetPoseAchieved) {
+                        if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(YDisDif) > 1)) && !targetPoseAchieved) {
+                            robot.Omni_Move((YDisDif)/36, (yaw)/18, (barring)/18, 1);
+                        } else if (((Math.abs(barring) > 1) || (Math.abs(yaw) > 5) || (Math.abs(YDisDif) > 1)) && targetPoseAchieved) {
                             targetPoseAchieved = false;
                         } else if (!targetPoseAchieved) {
                             targetPoseAchieved = true;
                             robot.Omni_Move(0, 0, 0, 0);
-                        } else {
+                        }else {
                             telemetry.addLine(":)");
                             LaunchBall();
                         }
@@ -89,7 +96,7 @@ public class AutonomousBlue extends LinearOpMode {
                         telemetry.update();
                     }
 
-                } else {
+                }else {
                     robot.Omni_Move(0, 0, RobotTurn, 1);
                     if (rotateCounter >= rotateCounterLimit){
                         RobotTurn += ((Math.abs(RobotTurn)+0.1)*(-Math.copySign(1, RobotTurn)));
@@ -117,15 +124,15 @@ public class AutonomousBlue extends LinearOpMode {
     }
 
     private boolean LaunchBall() {
-        if (Arm.getCurrentPosition() < 600) {
-            telemetry.addLine("Arm Up");
+        if(Arm.getCurrentPosition() < 600) {
             Arm.setPower(1);
             robot.Arm_Motor.setTargetPosition(640); // Move arm up
-        } else if (leftSpinner.getVelocity() < SPINNER_VELOCITY) {
-            telemetry.addData("Spinning Up", SPINNER_VELOCITY);
+        }
+        else if(leftSpinner.getVelocity() < SPINNER_VELOCITY) {
             leftSpinner.setVelocity(SPINNER_VELOCITY);
             rightSpinner.setVelocity(SPINNER_VELOCITY);
-        } else {
+        }
+        else {
             pushServo.setPosition(0.7);
         }
         return true;
