@@ -60,4 +60,14 @@ public class AprilTagDetector {
         }
         return null; // Couldn't find
     }
+
+
+    public boolean findByIDBol(int id) {
+        for (AprilTagDetection detection : current_detections) {
+            if (detection.id == id) return true;
+        }
+        return false; // Couldn't find
+    }
+
+
 }
