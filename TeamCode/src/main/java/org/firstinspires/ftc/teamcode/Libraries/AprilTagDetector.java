@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.Libraries;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.Math.DegTrig;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -16,6 +19,7 @@ public class AprilTagDetector {
     public AprilTagProcessor april_tag_processor;
     public List<AprilTagDetection> current_detections;
     public ElapsedTime last_check;
+    private RobotLib.Robot robot = new RobotLib.Robot(hardwareMap);
 
     public AprilTagDetector(HardwareMap hardwareMap) {
         this.april_tag_processor = AprilTagProcessor.easyCreateWithDefaults();
@@ -69,6 +73,122 @@ public class AprilTagDetector {
         return false; // Couldn't find
     }
 
+    public double robotHeading(){
+        double heading = 0;
 
+        AprilTagDetection detection = (AprilTagDetection) current_detections;
+        if (detection.id == 20){
+            double blueThetaDeg = 60.5;
+            double yaw = detection.ftcPose.yaw;
+
+            heading = -yaw + blueThetaDeg + 180;
+
+
+        } else if (detection.id == 24) {
+            double redThetaDeg = -60.5;
+            double yaw = detection.ftcPose.yaw;
+
+            heading = -yaw + redThetaDeg + 180;
+        }
+
+        return heading;
+    }
+
+    public double robotPositionX(){
+        double robotPositionX = 0;
+
+        AprilTagDetection detection = (AprilTagDetection) current_detections;
+        if (detection.id == 20){
+            double blueXPos = -1.50;
+
+            double bearing = detection.ftcPose.bearing;
+            double range = detection.ftcPose.range;
+
+            double rangeHeading = robotHeading() + bearing;
+
+            robotPositionX = blueXPos + range*DegTrig.cosDeg(rangeHeading);
+
+        }else if (detection.id == 24){
+            double redXPos = -1.50;
+
+            double bearing = detection.ftcPose.bearing;
+            double range = detection.ftcPose.range;
+
+            double rangeHeading = robotHeading() + bearing;
+
+            robotPositionX = redXPos + range*DegTrig.cosDeg(rangeHeading);
+
+        }
+
+        return robotPositionX;
+
+
+    }
+
+    public double robotPositionY(){
+        double robotPositionY =0;
+
+        AprilTagDetection detection = (AprilTagDetection) current_detections;
+        if (detection.id == 20){
+            double blueYPos = 1.355;
+
+            double bearing = detection.ftcPose.bearing;
+            double range = detection.ftcPose.range;
+
+            double rangeHeading = robotHeading() + bearing;
+
+            robotPositionY = blueYPos + range*DegTrig.sinDeg(rangeHeading);
+
+        }else if (detection.id == 24){
+            double redYPos = 1.355;
+
+            double bearing = detection.ftcPose.bearing;
+            double range = detection.ftcPose.range;
+
+            double rangeHeading = robotHeading() + bearing;
+
+            robotPositionY = redYPos + range*DegTrig.sinDeg(rangeHeading);
+
+        }
+
+        return robotPositionY;
+
+
+    }
+
+    /*
+    public void robotPosition(){
+        if (Math.abs(robotHeading()) == 1){
+
+        }
+
+
+    }
+    */
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
