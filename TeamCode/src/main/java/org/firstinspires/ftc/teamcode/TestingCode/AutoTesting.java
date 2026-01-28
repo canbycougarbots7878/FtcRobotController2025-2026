@@ -29,24 +29,33 @@ public class AutoTesting extends LinearOpMode {
         boolean targetPoseAchieved = false;
         double RobotTurn = 0.1;
 
+        boolean changedPosition = false;
+
         AprilTagDetector aprilTagDetector = null;
         aprilTagDetector = new AprilTagDetector(hardwareMap);
 
         Boolean aprilTagDetected = aprilTagDetector.findByIDBol(20) || aprilTagDetector.findByIDBol(24);
 
         if (aprilTagDetected){
+            aprilTagDetector.robotPosition();
 
-
-
+            changedPosition = true;
         }
 
         waitForStart();
 
-        while (opModeIsActive()){
-
+        if (!changedPosition){
+            while (!driveBase.searchForAprilTag(20, 0.1)){
+                driveBase.searchForAprilTag(20, 0.1);
+            }
+            aprilTagDetector.robotPosition();
+            changedPosition = true;
         }
 
 
+        while (opModeIsActive()){
+
+        }
 
 
     }

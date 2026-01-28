@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.Libraries;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
+import android.annotation.SuppressLint;
+
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -19,7 +22,8 @@ public class AprilTagDetector {
     public AprilTagProcessor april_tag_processor;
     public List<AprilTagDetection> current_detections;
     public ElapsedTime last_check;
-    private RobotLib.Robot robot = new RobotLib.Robot(hardwareMap);
+    public RobotLib.Robot robot = new RobotLib.Robot(hardwareMap);
+    public SparkFunOTOS.Pose2D pos = new SparkFunOTOS.Pose2D();
 
     public AprilTagDetector(HardwareMap hardwareMap) {
         this.april_tag_processor = AprilTagProcessor.easyCreateWithDefaults();
@@ -31,6 +35,7 @@ public class AprilTagDetector {
     /**
      * Print april tag details through telemetry
      */
+    @SuppressLint("DefaultLocale")
     public void telemetryAprilTags(Telemetry telemetry) {
         for (AprilTagDetection detection : current_detections) {
             if (detection.metadata != null) {
@@ -156,15 +161,27 @@ public class AprilTagDetector {
 
     }
 
-    /*
-    public void robotPosition(){
-        if (Math.abs(robotHeading()) == 1){
 
+    public void robotPosition(){
+        double currentHeading = pos.h;
+        double currentXPos = pos.x;
+        double currentYPos = pos.y;
+
+        while (!(Math.abs(robotHeading() - currentHeading) == 1) && !(Math.abs(robotPositionX() - currentXPos) == 1) && !(Math.abs(robotPositionY() - currentYPos) == 1)){
+            if (Math.abs(robotHeading() - currentHeading) == 1){
+                currentHeading = (robotHeading() + currentHeading)/2;
+            }
+            if (Math.abs(robotPositionX() - currentXPos) == 1){
+                currentXPos = (robotPositionX() + currentXPos)/2;
+            }
+            if (Math.abs(robotPositionY() - currentYPos) == 1){
+                currentYPos = (robotPositionY() + currentYPos)/2;
+            }
+            pos = new SparkFunOTOS.Pose2D(currentXPos,currentYPos,currentHeading);
         }
 
-
     }
-    */
+
 
 }
 
