@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.TestingCode;
 
 
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -57,6 +58,11 @@ public class AutoTesting extends LinearOpMode {
 
         while (opModeIsActive()){
             led.setColor(led.GREEN);
+            SparkFunOTOS.Pose2D target_pos = new SparkFunOTOS.Pose2D(1.2192,0,-135);
+            handleDrive(target_pos);
+            handleServo();
+            handleArm(true);
+
         }
 
 
@@ -69,9 +75,19 @@ public class AutoTesting extends LinearOpMode {
         led = new ServoLED(hardwareMap, "LED");
     }
 
-    private void handleDrive() {
+    private void handleDrive(SparkFunOTOS.Pose2D target_pos) {
+        driveBase.moveToPosition(target_pos);
 
+    }
 
+    private void handleServo(){
+        shooter.LaunchServoAuto();
+    }
+
+    private void handleArm(boolean armUp){
+        arm.ArmAuto(armUp);
+
+        shooter.SpinnerAuto(armUp, arm.isArmUp(), false);
     }
 
 }

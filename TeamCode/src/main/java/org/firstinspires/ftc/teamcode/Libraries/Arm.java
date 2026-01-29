@@ -61,6 +61,24 @@ public class Arm {
         }
     }
 
+    public void ArmAuto(boolean armUp){
+        this.Arm_Motor.setTargetPosition(armUp ? 600 : 0);
+
+        if (armUp) {
+            led.setColor(led.YELLOW);
+        }else {
+            led.setColor(led.ORANGE);
+        }
+    }
+
+    public boolean isArmUp(){
+        if (Math.abs(Get_Arm_Position() - 600) == 10){
+            return true;
+        }else {
+            return false;
+        }
+    }
+
     // Arm functions
     public void Set_Arm_Power(double power) {
         this.Arm_Motor.setPower(power);
