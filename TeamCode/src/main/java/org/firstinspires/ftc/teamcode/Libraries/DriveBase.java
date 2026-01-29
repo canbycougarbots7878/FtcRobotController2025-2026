@@ -34,6 +34,8 @@ public class DriveBase {
 
     public SparkFunOTOS otos;
 
+    public ServoLED led;
+
     // Constructor
     public DriveBase(HardwareMap hardwareMap)  {
         this.front_right = hardwareMap.get(DcMotor.class, "frontright");
@@ -59,6 +61,9 @@ public class DriveBase {
         this.otos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
         this.otos.calibrateImu();
         this.otos.resetTracking();
+
+        // Color initialization
+        led = new ServoLED(hardwareMap, "LED");
 
         this.hardwareMap = hardwareMap;
     }

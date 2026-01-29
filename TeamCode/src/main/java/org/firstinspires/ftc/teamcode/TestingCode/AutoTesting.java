@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Libraries.AprilTagDetector;
 import org.firstinspires.ftc.teamcode.Libraries.Arm;
 import org.firstinspires.ftc.teamcode.Libraries.DriveBase;
+import org.firstinspires.ftc.teamcode.Libraries.ServoLED;
 import org.firstinspires.ftc.teamcode.Libraries.Shooter;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
@@ -15,6 +16,7 @@ public class AutoTesting extends LinearOpMode {
     DriveBase driveBase = null;
     Arm arm = null;
     Shooter shooter = null;
+    ServoLED led = null;
     int target_apriltag = 20; // Blue team
     Boolean arm_up = false;
 
@@ -45,8 +47,8 @@ public class AutoTesting extends LinearOpMode {
         waitForStart();
 
         if (!changedPosition){
-            while (!driveBase.searchForAprilTag(20, 0.1)){
-                driveBase.searchForAprilTag(20, 0.1);
+            while (!driveBase.searchForAprilTag(20, RobotTurn)){
+                driveBase.searchForAprilTag(20, RobotTurn);
             }
             aprilTagDetector.robotPosition();
             changedPosition = true;
@@ -54,7 +56,7 @@ public class AutoTesting extends LinearOpMode {
 
 
         while (opModeIsActive()){
-
+            led.setColor(led.GREEN);
         }
 
 
@@ -64,6 +66,7 @@ public class AutoTesting extends LinearOpMode {
         driveBase = new DriveBase(hardwareMap);
         arm = new Arm(hardwareMap);
         shooter = new Shooter(hardwareMap);
+        led = new ServoLED(hardwareMap, "LED");
     }
 
     private void handleDrive() {
