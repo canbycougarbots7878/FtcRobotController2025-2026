@@ -14,10 +14,10 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @Autonomous(name = "Autonomous Testing", group = "Test")
 public class AutoTesting extends LinearOpMode {
-    DriveBase driveBase = null;
-    Arm arm = null;
-    Shooter shooter = null;
-    ServoLED led = null;
+    DriveBase driveBase;
+    Arm arm;
+    Shooter shooter;
+    ServoLED led;
     int target_apriltag = 20; // Blue team
     Boolean arm_up = false;
 
@@ -45,8 +45,12 @@ public class AutoTesting extends LinearOpMode {
             changedPosition = true;
         }
 
+        telemetry.addData("AprilTag Detected?", aprilTagDetected);
+        telemetry.update();
+
         waitForStart();
 
+        /*
         if (!changedPosition){
             while (!driveBase.searchForAprilTag(20, RobotTurn)){
                 driveBase.searchForAprilTag(20, RobotTurn);
@@ -64,7 +68,7 @@ public class AutoTesting extends LinearOpMode {
             handleArm(true);
 
         }
-
+        */
 
     }
 

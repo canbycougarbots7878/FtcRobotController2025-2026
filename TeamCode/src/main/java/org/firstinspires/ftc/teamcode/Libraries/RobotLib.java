@@ -87,11 +87,11 @@ public class RobotLib {
         private Boolean APRILTAG_ENABLED = false;
 
         public Robot(HardwareMap hardwareMap) {
+            this.hardwareMap = hardwareMap;
             this.Front_Right = hardwareMap.get(DcMotor.class, "frontright");
             this.Front_Left = hardwareMap.get(DcMotor.class, "frontleft");
             this.Back_Right = hardwareMap.get(DcMotor.class, "backright");
             this.Back_Left = hardwareMap.get(DcMotor.class, "backleft");
-            this.hardwareMap = hardwareMap;
         }
         public Robot enableOtos() {
             this.otos = this.hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
