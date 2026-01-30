@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.Libraries.Arm;
 import org.firstinspires.ftc.teamcode.Libraries.DriveBase;
 import org.firstinspires.ftc.teamcode.Libraries.ServoLED;
 import org.firstinspires.ftc.teamcode.Libraries.Shooter;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @Autonomous(name = "Autonomous Testing", group = "Test")
 public class AutoTesting extends LinearOpMode {
