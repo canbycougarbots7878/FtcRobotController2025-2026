@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.Libraries;
 
 import static java.lang.Math.abs;
+import static java.lang.Math.hypot;
 import static java.lang.Math.min;
+import static java.lang.Math.signum;
 import static java.lang.Math.sqrt;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
@@ -155,6 +157,13 @@ public class DriveBase {
         double power = angularDirection(current_yaw+getDeltaHeading()/20.0,target_yaw) / 20.0;
         this.omniMove(0.0,0.0,power);
     }
+
+    /**
+     *
+     * @param Forward positive x
+     * @param Right positive y
+     * @param Rotate counterclockwise
+     */
     public void globalOmniMove(double Forward, double Right, double Rotate) {
         double heading = getHeading();
         double c = DegTrig.cosDeg(heading);
@@ -194,23 +203,38 @@ public class DriveBase {
         }
         return false;
     }
-    public void moveToPosition(SparkFunOTOS.Pose2D target_pos) {
+    public void moveToPosition(double target_x, double target_y, double target_h) {
         SparkFunOTOS.Pose2D current_pos = getPosition();
-        double x_diff = target_pos.x - current_pos.x;
-        double y_diff = target_pos.y - current_pos.y;
-        double h_diff = target_pos.h - current_pos.h;
+        double x_diff = target_x - current_pos.x;
+        double y_diff = target_y - current_pos.y;
+        double h_diff = target_h - current_pos.h;
 
-        globalOmniMove(y_diff/10.0,x_diff/10.0,h_diff/10.0);
+        double magnitude = hypot(x_diff,y_diff);
+        double vect_x = 0.25 * x_diff / magnitude;
+        double vect_y = 0.25 * y_diff / magnitude;
+
+        if(magnitude < 3) {
+            vect_x /= 3.0;
+            vect_y /= 3.0;
+        }
+
+        globalOmniMove(vect_x,vect_y,h_diff/100.0);
     }
-    double distanceTo(SparkFunOTOS.Pose2D target_pos, boolean check_heading) {
+    public void moveToPosition(SparkFunOTOS.Pose2D pos) {
+        moveToPosition(pos.x,pos.y,pos.h);
+    }
+    public double distanceTo(double target_x, double target_y, double target_h, boolean check_heading) {
         SparkFunOTOS.Pose2D current_pos = getPosition();
-        double dx = target_pos.x - current_pos.x;
-        double dy = target_pos.y - current_pos.y;
-        double dh = (check_heading ? (target_pos.h - current_pos.h) / 180.0 : 0);
+        double dx = target_x - current_pos.x;
+        double dy = target_y - current_pos.y;
+        double dh = (check_heading ? (target_h - current_pos.h) / 180.0 : 0);
 
         return sqrt(dx*dx+dy*dy+dh*dh);
     }
-    void telemetryPosition(Telemetry telemetry) {
+    public double distanceTo(SparkFunOTOS.Pose2D pos, boolean check_heading) {
+        return distanceTo(pos.x,pos.y,pos.h,check_heading);
+    }
+    public void telemetryPosition(Telemetry telemetry) {
         SparkFunOTOS.Pose2D pose = getPosition();
         telemetry.addData("X", pose.x);
         telemetry.addData("Y", pose.y);

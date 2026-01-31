@@ -22,7 +22,6 @@ public class AprilTagDetector {
     public AprilTagProcessor april_tag_processor;
     public List<AprilTagDetection> current_detections;
     public ElapsedTime last_check;
-    public RobotLib.Robot robot = new RobotLib.Robot(hardwareMap);
     public SparkFunOTOS.Pose2D pos = new SparkFunOTOS.Pose2D();
 
     public AprilTagDetector(HardwareMap hardwareMap) {

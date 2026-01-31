@@ -87,7 +87,7 @@ public class MainTeleOp2 extends LinearOpMode {
         if(driveBase.aprilTagDetector.last_check.milliseconds() > 10) {
             driveBase.aprilTagDetector.detect();
         }
-        if (gamepad1.y) driveBase.moveToPosition(new SparkFunOTOS.Pose2D(0,0,0));
+        if (gamepad1.y) driveBase.moveToPosition(0,0,0);
         if(gamepad1.b || gamepad2.b) {
             driveBase.lookAtApriltag(target_apriltag);
         }

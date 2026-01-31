@@ -10,7 +10,7 @@ public class Arm {
 
     public DcMotor Arm_Motor;
 
-    ServoLED led;
+    //ServoLED led;
 
 
     public Arm(HardwareMap hardwareMap){
@@ -20,7 +20,7 @@ public class Arm {
         this.Arm_Motor.setTargetPosition(0);
         this.Arm_Motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        led = new ServoLED(hardwareMap, "LED");
+        //led = new ServoLED(hardwareMap, "LED");
 
     }
 
@@ -38,9 +38,9 @@ public class Arm {
             this.Arm_Motor.setTargetPosition(armUp ? (gamepad.left_bumper ? 600 : 640) : 0);
 
             if (armUp) {
-                led.setColor(led.YELLOW);
+                //led.setColor(led.YELLOW);
             }else {
-                led.setColor(led.ORANGE);
+                //led.setColor(led.ORANGE);
             }
         }
 
@@ -65,9 +65,9 @@ public class Arm {
         this.Arm_Motor.setTargetPosition(armUp ? 600 : 0);
 
         if (armUp) {
-            led.setColor(led.YELLOW);
+            //led.setColor(led.YELLOW);
         }else {
-            led.setColor(led.ORANGE);
+            //led.setColor(led.ORANGE);
         }
     }
 

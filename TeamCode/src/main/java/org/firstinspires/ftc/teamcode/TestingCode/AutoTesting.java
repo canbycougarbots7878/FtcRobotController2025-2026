@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.TestingCode;
 
-
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -33,18 +32,18 @@ public class AutoTesting extends LinearOpMode {
 
         boolean changedPosition = false;
 
-        AprilTagDetector aprilTagDetector = null;
-        aprilTagDetector = new AprilTagDetector(hardwareMap);
+        //AprilTagDetector aprilTagDetector = null;
+        //aprilTagDetector = new AprilTagDetector(hardwareMap);
 
-        Boolean aprilTagDetected = aprilTagDetector.findByIDBol(20) || aprilTagDetector.findByIDBol(24);
+        //Boolean aprilTagDetected = aprilTagDetector.findByIDBol(20) || aprilTagDetector.findByIDBol(24);
 
-        if (aprilTagDetected){
-            aprilTagDetector.robotPosition();
+        //if (aprilTagDetected){
+        //    aprilTagDetector.robotPosition();
 
-            changedPosition = true;
-        }
+        //    changedPosition = true;
+        //}
 
-        telemetry.addData("AprilTag Detected?", aprilTagDetected);
+        //telemetry.addData("AprilTag Detected?", aprilTagDetected);
         telemetry.update();
 
         waitForStart();
