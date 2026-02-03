@@ -72,7 +72,7 @@ public class Arm {
     }
 
     public boolean isArmUp(){
-        if (Math.abs(Get_Arm_Position() - 600) == 10){
+        if (Math.abs(Get_Arm_Position() - 600) <= 10){
             return true;
         }else {
             return false;

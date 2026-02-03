@@ -62,10 +62,8 @@ public class Shooter {
         }
     }
 
-    public void LaunchServoAuto(){
-        double SPINNER_VELOCITY = 1150;
+    public void LaunchServoAuto(double SPINNER_VELOCITY){
 
-        // Servo control (A = close, default = open)
         if(getSpinnerVelocity() > SPINNER_VELOCITY-20) {
             servo.setPower(1);
         }
@@ -109,7 +107,7 @@ public class Shooter {
         double SPINNER_VELOCITY = 1150;
         if (launch && !input) {            // Launch
             setSpinnerVelocity(SPINNER_VELOCITY);
-            LaunchServoAuto();
+            LaunchServoAuto(SPINNER_VELOCITY);
         } else if (!launch && input) {      // Intake
             if(!armUp) {
                 setSpinnerVelocity(-1100);

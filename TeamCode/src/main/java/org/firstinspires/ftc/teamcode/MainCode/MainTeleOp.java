@@ -144,6 +144,7 @@ public class MainTeleOp extends LinearOpMode {
         }
     }
 
+
     private void handleSpinners() {
         if (gamepad1.dpadLeftWasPressed() || gamepad2.dpadLeftWasPressed()) SPINNER_VELOCITY -= 10;
         if (gamepad1.dpadUpWasPressed() || gamepad2.dpadUpWasPressed()) SPINNER_VELOCITY += 100;

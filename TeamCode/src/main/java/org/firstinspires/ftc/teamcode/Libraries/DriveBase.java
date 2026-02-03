@@ -210,8 +210,8 @@ public class DriveBase {
         double h_diff = target_h - current_pos.h;
 
         double magnitude = hypot(x_diff,y_diff);
-        double vect_x = 0.25 * x_diff / magnitude;
-        double vect_y = 0.25 * y_diff / magnitude;
+        double vect_x = 0.25 * 2 * x_diff / magnitude;
+        double vect_y = 0.25 * 2 * y_diff / magnitude;
 
         if(magnitude < 3) {
             vect_x /= 3.0;
