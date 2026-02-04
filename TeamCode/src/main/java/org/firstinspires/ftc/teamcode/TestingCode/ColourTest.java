@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.TestingCode;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Libraries.ServoLED;
 
+@Disabled
 @TeleOp(name = "Colour test", group = "Test")
 public class ColourTest extends LinearOpMode {
     ServoLED LED = null;

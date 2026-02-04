@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.MainCode;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
+@Disabled
 @Autonomous(name = "Autonomous Blue", group = "Robot")
 public class AutonomousBlue extends LinearOpMode {
     private final double SPINNER_VELOCITY = 1150;

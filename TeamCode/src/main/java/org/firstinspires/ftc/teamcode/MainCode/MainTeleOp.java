@@ -100,10 +100,10 @@ public class MainTeleOp extends LinearOpMode {
         }
         else {
             if(gamepad1.a) {
-                servo.setPower(1);
+                servo.setPower(.5);
             }
             else if(gamepad1.y) {
-                servo.setPower(-1);
+                servo.setPower(-.5);
             } else {
                 servo.setPower(0);
             }

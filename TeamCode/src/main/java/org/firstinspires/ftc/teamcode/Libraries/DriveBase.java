@@ -192,10 +192,10 @@ public class DriveBase {
      * @param id: id of target apriltag
      * @return whether it sees the apriltag, will do nothing if it can't see it
      */
-    public boolean lookAtApriltag(int id) {
+    public boolean lookAtApriltag(int id, double offset) {
         for (AprilTagDetection detection : aprilTagDetector.current_detections) {
             if (detection.id == id) {
-                double target = detection.ftcPose.bearing;
+                double target = detection.ftcPose.bearing + offset;
                 double turn =  (target - getDeltaHeading() / 20.0) / 18.0;
                 omniMove(0,0,turn);
                 return true;

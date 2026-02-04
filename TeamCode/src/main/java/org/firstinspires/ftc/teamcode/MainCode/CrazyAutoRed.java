@@ -1,28 +1,23 @@
-package org.firstinspires.ftc.teamcode.TestingCode;
+package org.firstinspires.ftc.teamcode.MainCode;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.Libraries.AprilTagDetector;
 import org.firstinspires.ftc.teamcode.Libraries.Arm;
 import org.firstinspires.ftc.teamcode.Libraries.DriveBase;
-import org.firstinspires.ftc.teamcode.Libraries.RobotLib;
 import org.firstinspires.ftc.teamcode.Libraries.Shooter;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-@Autonomous(name = "I'm losing my mind", group = "Test")
-public class CrazyAuto extends LinearOpMode {
+@Autonomous(name = "Autonomous Red", group = "Robot")
+public class CrazyAutoRed extends LinearOpMode {
     DriveBase driveBase = null; // Declare drive base
-    SparkFunOTOS.Pose2D shooting_pos = new SparkFunOTOS.Pose2D(15,-15,29);
-    private RobotLib.Robot robot;
+    SparkFunOTOS.Pose2D shooting_pos = new SparkFunOTOS.Pose2D(15,15,-29);
     boolean in_position = false;
     boolean aimed = false;
-    int target_apriltag = 20;
+    int target_apriltag = 24;
 
     public void runOpMode() {
         driveBase = new DriveBase(hardwareMap);
-        robot = new RobotLib.Robot(hardwareMap).enableAprilTagDetection();
 
         Arm arm = new Arm(hardwareMap);
         Shooter shooter = new Shooter(hardwareMap);
@@ -38,19 +33,22 @@ public class CrazyAuto extends LinearOpMode {
                 driveBase.stop();
             }
 
-            //
+            // Scan for new april tags every 10 milliseconds
             if(driveBase.aprilTagDetector.last_check.milliseconds() > 10 && in_position) {
                 driveBase.aprilTagDetector.detect();
             }
 
-
-            if (in_position && aimed) {
+            // If robot is in position to shoot, then shoot
+            if (in_position) {
+                driveBase.lookAtApriltag(target_apriltag,10);
                 arm.Set_Arm_Power(1);
                 arm.ArmAuto(true);
                 if (arm.isArmUp()) {
                     shooter.SpinnerAuto(arm.isArmUp(), true, false);
                 }
             }
+
+            // Telemetry
             driveBase.telemetryPosition(telemetry);
             telemetry.addData("Distance",driveBase.distanceTo(shooting_pos,false));
             telemetry.addData("In position",in_position);
@@ -61,10 +59,4 @@ public class CrazyAuto extends LinearOpMode {
 
     }
 
-    private void handleHoming(){
-        if (robot.timeSinceLastAprilTagCheck.milliseconds() > 10) {
-            robot.UpdateAprilTagDetections();
-        }
-        robot.LookAtAprilTag(target_apriltag,10);
-    }
 }

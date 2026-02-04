@@ -8,8 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Libraries.RobotLib;
 
-@Disabled
-@TeleOp(name = "Basic Drive", group = "Movement")
+@TeleOp(name = "Simple TeleOp", group = "Robot")
 public class Basic_Drive extends LinearOpMode {
     DcMotor Front_Right = null;
     DcMotor Front_Left = null;

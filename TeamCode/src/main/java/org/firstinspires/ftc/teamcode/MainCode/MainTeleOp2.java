@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.MainCode;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.teamcode.Libraries.Arm;
 import org.firstinspires.ftc.teamcode.Libraries.DriveBase;
 import org.firstinspires.ftc.teamcode.Libraries.Shooter;
 
+@Disabled
 @TeleOp(name = "Main TeleOp 2", group = "Official")
 public class MainTeleOp2 extends LinearOpMode {
     DriveBase driveBase = null;
@@ -89,7 +91,7 @@ public class MainTeleOp2 extends LinearOpMode {
         }
         if (gamepad1.y) driveBase.moveToPosition(0,0,0);
         if(gamepad1.b || gamepad2.b) {
-            driveBase.lookAtApriltag(target_apriltag);
+            driveBase.lookAtApriltag(target_apriltag, 10);
         }
     }
 
