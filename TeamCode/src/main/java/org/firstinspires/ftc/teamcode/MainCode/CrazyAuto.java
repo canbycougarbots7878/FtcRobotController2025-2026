@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.MainCode;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Libraries.Arm;
 import org.firstinspires.ftc.teamcode.Libraries.DriveBase;
@@ -12,9 +13,12 @@ import org.firstinspires.ftc.teamcode.Libraries.Shooter;
 public class CrazyAuto extends LinearOpMode {
     DriveBase driveBase = null; // Declare drive base
     SparkFunOTOS.Pose2D shooting_pos = new SparkFunOTOS.Pose2D(15,-15,29);
+    SparkFunOTOS.Pose2D moving_pos = new SparkFunOTOS.Pose2D(30,-15,29);
     boolean in_position = false;
     boolean aimed = false;
     int target_apriltag = 20;
+
+    boolean waiting = false;
 
     public void runOpMode() {
         driveBase = new DriveBase(hardwareMap);
@@ -29,8 +33,8 @@ public class CrazyAuto extends LinearOpMode {
                 driveBase.moveToPosition(shooting_pos);
             }
             else {
-                in_position = true;
                 driveBase.stop();
+                in_position = true;
             }
 
             // Scan for new april tags every 10 milliseconds
