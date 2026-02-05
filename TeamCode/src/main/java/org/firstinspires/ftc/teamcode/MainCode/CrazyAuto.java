@@ -13,11 +13,12 @@ import org.firstinspires.ftc.teamcode.Libraries.Shooter;
 public class CrazyAuto extends LinearOpMode {
     DriveBase driveBase = null; // Declare drive base
     SparkFunOTOS.Pose2D shooting_pos = new SparkFunOTOS.Pose2D(15,-15,29);
-    SparkFunOTOS.Pose2D moving_pos = new SparkFunOTOS.Pose2D(30,-15,29);
+    SparkFunOTOS.Pose2D moving_pos = new SparkFunOTOS.Pose2D(7.6,-59.4,0);
     boolean in_position = false;
     boolean aimed = false;
     int target_apriltag = 20;
 
+    ElapsedTime waittimer;
     boolean waiting = false;
 
     public void runOpMode() {
@@ -33,8 +34,10 @@ public class CrazyAuto extends LinearOpMode {
                 driveBase.moveToPosition(shooting_pos);
             }
             else {
-                driveBase.stop();
                 in_position = true;
+                if(!waiting) {
+                    driveBase.stop();
+                }
             }
 
             // Scan for new april tags every 10 milliseconds
@@ -48,7 +51,24 @@ public class CrazyAuto extends LinearOpMode {
                 arm.Set_Arm_Power(1);
                 arm.ArmAuto(true);
                 if (arm.isArmUp()) {
-                    shooter.SpinnerAuto(arm.isArmUp(), true, false);
+                    shooter.SpinnerAuto(arm.isArmUp(), true, false,1075);
+                    if(!waiting) {
+                        waittimer = new ElapsedTime();
+                        driveBase.stop();
+                    }
+                    waiting = true;
+                    driveBase.stop();
+                }
+                if(waiting && waittimer.seconds() > 5) {
+                    arm.Set_Arm_Power(0);
+                    shooter.stopSpinners();
+                    if(driveBase.distanceTo(moving_pos, true) > 1) {
+                        driveBase.moveToPosition(moving_pos);
+                    }
+                    else {
+                        driveBase.stop();
+                        requestOpModeStop();
+                    }
                 }
             }
 

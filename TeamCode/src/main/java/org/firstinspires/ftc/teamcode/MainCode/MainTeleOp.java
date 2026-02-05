@@ -73,8 +73,9 @@ public class MainTeleOp extends LinearOpMode {
             robot.Reset_Otos();
         }
         if(gamepad1.xWasPressed()) {
-            robot.Reset_IMU();
-            PRM_ENABLED = !PRM_ENABLED;
+            //robot.Reset_IMU();
+            //PRM_ENABLED = !PRM_ENABLED;
+            robot.Reset_Arm_Reading();
         }
         if(gamepad1.right_bumper) {
             target_apriltag = 24; // Red
@@ -127,10 +128,6 @@ public class MainTeleOp extends LinearOpMode {
             }
         } else {
             robot.Set_Arm_Power(1);
-        }
-
-        if (gamepad1.back) {
-            robot.Reset_Arm_Reading();
         }
     }
 

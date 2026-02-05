@@ -196,7 +196,7 @@ public class DriveBase {
         for (AprilTagDetection detection : aprilTagDetector.current_detections) {
             if (detection.id == id) {
                 double target = detection.ftcPose.bearing + offset;
-                double turn =  (target - getDeltaHeading() / 20.0) / 18.0;
+                double turn =  (target - getDeltaHeading() / 20.0) / 23.0;
                 omniMove(0,0,turn);
                 return true;
             }

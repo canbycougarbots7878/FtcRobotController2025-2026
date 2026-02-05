@@ -44,7 +44,7 @@ public class CrazyAutoRed extends LinearOpMode {
                 arm.Set_Arm_Power(1);
                 arm.ArmAuto(true);
                 if (arm.isArmUp()) {
-                    shooter.SpinnerAuto(arm.isArmUp(), true, false);
+                    shooter.SpinnerAuto(arm.isArmUp(), true, false, 1075);
                 }
             }
 

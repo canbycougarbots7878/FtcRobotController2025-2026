@@ -32,6 +32,7 @@ public class Shooter {
         // Servo control (A = close, default = open)
         if(getSpinnerVelocity() > SPINNER_VELOCITY-20) {
             servo.setPower(1);
+            led.setColor(led.RED);
         }
         else {
             servo.setPower(gamepad.a ? 1 : 0);
@@ -103,11 +104,10 @@ public class Shooter {
      * @param input if true and launch is false intake the ball.
      *              if both are the same spinners stop.
      */
-    public void SpinnerAuto(boolean armUp, boolean launch, boolean input){
-        double SPINNER_VELOCITY = 1150;
+    public void SpinnerAuto(boolean armUp, boolean launch, boolean input, double spinner_velocity){
         if (launch && !input) {            // Launch
-            setSpinnerVelocity(SPINNER_VELOCITY);
-            LaunchServoAuto(SPINNER_VELOCITY);
+            setSpinnerVelocity(spinner_velocity);
+            LaunchServoAuto(spinner_velocity);
         } else if (!launch && input) {      // Intake
             if(!armUp) {
                 setSpinnerVelocity(-1100);
@@ -132,8 +132,10 @@ public class Shooter {
         rightSpinner.setVelocity(velocity);
     }
 
-    private void stopSpinners() {
+    // stop all shooter things
+    public void stopSpinners() {
         setSpinnerVelocity(0);
+        servo.setPower(0);
     }
 
 }
