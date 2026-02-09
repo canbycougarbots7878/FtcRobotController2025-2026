@@ -13,7 +13,7 @@ public class WheelControl {
     public DcMotor back_left;
 
     // Constructor
-    public void DriveBase(HardwareMap hardwareMap)  {
+    public void WheelCreation(HardwareMap hardwareMap)  {
         this.front_right = hardwareMap.get(DcMotor.class, "frontright");
         this.front_left = hardwareMap.get(DcMotor.class, "frontleft");
         this.back_right = hardwareMap.get(DcMotor.class, "backright");
