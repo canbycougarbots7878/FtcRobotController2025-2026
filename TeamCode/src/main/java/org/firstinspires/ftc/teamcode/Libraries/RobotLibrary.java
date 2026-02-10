@@ -4,9 +4,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class RobotLibrary {
     MovementLibrary movementLibrary;
+    TelemetryLibrary telemetryLibrary;
 
     public void RobotSetUp(HardwareMap hardwareMap){
         movementLibrary.MovementLibraryCreation(hardwareMap);
+        telemetryLibrary.TelemetrySetUp(hardwareMap);
     }
 
 }
